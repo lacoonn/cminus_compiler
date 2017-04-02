@@ -18,3 +18,95 @@
 	4: =
 	4: NUM, val= 5
 	4: ;
+5:		char tor = 'a';
+	5: ID, name= char
+	5: ID, name= tor
+	5: =
+	5: Error: '
+	5: ID, name= a
+	5: Error: '
+	5: ;
+6:		char tor2[5] = "12345";
+	6: ID, name= char
+	6: ID, name= tor
+	6: NUM, val= 2
+	6: [
+	6: NUM, val= 5
+	6: ]
+	6: =
+	6: Error: "
+	6: NUM, val= 12345
+	6: Error: "
+	6: ;
+7:		printf(SR(5));
+	7: ID, name= printf
+	7: (
+	7: ID, name= SR
+	7: (
+	7: NUM, val= 5
+	7: )
+	7: )
+	7: ;
+8:		temp =(i == 5 ? 3 : 2)
+	8: ID, name= temp
+	8: =
+	8: (
+	8: ID, name= i
+	8: ==
+	8: NUM, val= 5
+	8: Error: ?
+	8: NUM, val= 3
+	8: Error: :
+	8: NUM, val= 2
+	8: )
+9:		
+10:	int SR(int n)
+	10: ID, name= int
+	10: ID, name= SR
+	10: (
+	10: ID, name= int
+	10: ID, name= n
+	10: )
+11:		int s = 0, i;
+	11: ID, name= int
+	11: ID, name= s
+	11: =
+	11: NUM, val= 0
+	11: ,
+	11: ID, name= i
+	11: ;
+12:		int ary[5];
+	12: ID, name= int
+	12: ID, name= ary
+	12: [
+	12: NUM, val= 5
+	12: ]
+	12: ;
+13:		for (i = 1; i <= n; i =i+1)
+	13: ID, name= for
+	13: (
+	13: ID, name= i
+	13: =
+	13: NUM, val= 1
+	13: ;
+	13: ID, name= i
+	13: <=
+	13: ID, name= n
+	13: ;
+	13: ID, name= i
+	13: =
+	13: ID, name= i
+	13: +
+	13: NUM, val= 1
+	13: )
+14:			s = s + i;
+	14: ID, name= s
+	14: =
+	14: ID, name= s
+	14: +
+	14: ID, name= i
+	14: ;
+15:		return s;
+	15: ID, name= return
+	15: ID, name= s
+	15: ;

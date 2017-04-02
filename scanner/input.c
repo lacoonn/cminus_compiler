@@ -5,7 +5,8 @@ int main()
 	char tor = 'a';
 	char tor2[5] = "12345";
 	printf(SR(5));
-
+	temp =(i == 5 ? 3 : 2)
+	
 int SR(int n)
 	int s = 0, i;
 	int ary[5];

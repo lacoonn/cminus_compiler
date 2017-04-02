@@ -65,8 +65,6 @@ void get_Token(ifstream &fp_in, ofstream &fp_out)
 				now_state = START;
 				if (temp == '\n') {
 					line_buf += '\n';
-					//fwrite(line_buf.data(), 1, line_buf.size(), fp_out);
-					//fwrite(words_buf.data(), 1, words_buf.size(), fp_out);
 					fp_out << line_buf;
 					fp_out << words_buf;
 					temp_string << ++line_num << ':' << '\t';
@@ -156,52 +154,41 @@ void get_Token(ifstream &fp_in, ofstream &fp_out)
 		if (now_state == FIN || now_state == ERROR) {
 
 			if (prev_state == ID)
-				temp_string << '\t' << line_num << ": " << "ID, name= ";
+				temp_string << '\t' << line_num << ": " << "ID, name= " << temp_buf << '\n';
 			if (prev_state == NUM)
-				temp_string << '\t' << line_num << ": " << "NUM, val= ";
+				temp_string << '\t' << line_num << ": " << "NUM, val= " << temp_buf << '\n';
 			if (prev_state == SYM || prev_state == EQ || prev_state == SYM2)
-				temp_string << '\t' << line_num << ": ";
+				temp_string << '\t' << line_num << ": " << temp_buf << '\n';
 			words_buf.append(temp_string.str());
-			words_buf.append(temp_buf);
-			words_buf += '\n';
+			//words_buf.append(temp_buf);
+			//words_buf += '\n';
 			temp_buf = ""; //temp_buf를 비운다
 			temp_string.str(""); // stream을 비운다
-
-			/*
-			if (temp == '\n') { // 개행문자가 들어올경우
-				line_buf += '\n';
-				fp_out << line_buf;
-				fp_out << words_buf;
-				temp_string << ++line_num << ':' << '\t';
-				line_buf = temp_string.str();
-				temp_string.str("");
-				words_buf = ""; // line, words 버퍼 비우기
-			}*/
-			// 에러 상태일 경우의 처리!!
-			// FIN과 달리 같은 문자를 다시 읽지 않고 에러 문장을 바로 출력한다.
-			if (now_state == ERROR) {
-				temp_string << "Error: " << temp << '\n';
-				words_buf.append(temp_string.str());
-				words_buf += '\n';
-				temp_string.str(""); // stream을 비운다
-			}
-			// FIN일 경우 START 상태가 되고 같은 문자를 한번 더 읽는다.
-			if(now_state == FIN)
-				fp_in.seekg((int)fp_in.tellg() - 1);
-			
-			
+		}
+		// 에러 상태일 경우의 처리!!
+		// FIN과 달리 같은 문자를 다시 읽지 않고 에러 문장을 바로 출력한다.
+		if (now_state == ERROR) {
+			temp_string << '\t' << line_num << ": " << "Error: " << temp;
+			words_buf.append(temp_string.str());
+			words_buf += '\n';
+			temp_string.str(""); // stream을 비운다
 		}
 
 		
 		if (now_state != FIN) {
 			if (temp != '\n')
 				line_buf += temp;
-			if (!isWS(temp))
+			if (!isWS(temp) && now_state != ERROR)
 				temp_buf += temp;
 		}
 		prev_state = now_state;
 		//FIN 상태이면 START로 초기화해줌
-		if(now_state == FIN)
+		if (now_state == FIN) {
+			// FIN일 경우 START 상태가 되고 같은 문자를 한번 더 읽는다.
+			fp_in.seekg((int)fp_in.tellg() - 1);
+			now_state = START;
+		}
+		if(now_state == ERROR)
 			now_state = START;
 	}
 
