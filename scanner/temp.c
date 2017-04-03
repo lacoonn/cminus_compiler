@@ -1,12 +1,3 @@
-/*	This comment is for
-testing ERROR code*/
-
-void printString () {
-	print5f("Too Many 2rr5r Code");
-	printf("Com/*COMMENT*/ment");
-	puts("55c3/*PUPPET*/333")
-}
-
 /* A program to perform Euclid's
 	Algorithm to compute gcd. */
 

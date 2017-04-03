@@ -1,112 +1,125 @@
-1:	int SR(int);
-	1: ID, name= int
-	1: ID, name= SR
-	1: (
-	1: ID, name= int
-	1: )
-	1: ;
-2:	
-3:	int main()
-	3: ID, name= int
-	3: ID, name= main
-	3: (
-	3: )
-4:		int it53 = 5;
-	4: ID, name= int
-	4: ID, name= it
-	4: NUM, val= 53
-	4: =
-	4: NUM, val= 5
-	4: ;
-5:		char tor = 'a';
-	5: ID, name= char
-	5: ID, name= tor
-	5: =
-	5: Error: '
-	5: ID, name= a
-	5: Error: '
+C- COMPILATION: input.c
+
+1:	/*	This comment is for
+2:	testing ERROR code*/
+3:	
+4:	void printString () {
+	4: ID, name= void
+	4: ID, name= printString
+	4: (
+	4: )
+	4: {
+5:		print5f("Too Many 2rr5r Code");
+	5: Error: print5f
+	5: (
+	5: Error: "
+	5: ID, name= Too
+	5: ID, name= Many
+	5: Error: 2rr5r
+	5: ID, name= Code
+	5: Error: "
+	5: )
 	5: ;
-6:		char tor2[5] = "12345";
-	6: ID, name= char
-	6: ID, name= tor
-	6: NUM, val= 2
-	6: [
-	6: NUM, val= 5
-	6: ]
-	6: =
+6:		printf("Com/*COMMENT*/ment");
+	6: ID, name= printf
+	6: (
 	6: Error: "
-	6: NUM, val= 12345
+	6: ID, name= Com
+	6: ID, name= ment
 	6: Error: "
+	6: )
 	6: ;
-7:		printf(SR(5));
-	7: ID, name= printf
+7:		puts("55c3/*PUPPET*/333")
+	7: ID, name= puts
 	7: (
-	7: ID, name= SR
-	7: (
-	7: NUM, val= 5
+	7: Error: "
+	7: Error: 55c3
+	7: NUM, val= 333
+	7: Error: "
 	7: )
-	7: )
-	7: ;
-8:		temp =(i == 5 ? 3 : 2)
-	8: ID, name= temp
-	8: =
-	8: (
-	8: ID, name= i
-	8: ==
-	8: NUM, val= 5
-	8: Error: ?
-	8: NUM, val= 3
-	8: Error: :
-	8: NUM, val= 2
-	8: )
-9:		
-10:	int SR(int n)
-	10: ID, name= int
-	10: ID, name= SR
-	10: (
-	10: ID, name= int
-	10: ID, name= n
-	10: )
-11:		int s = 0, i;
-	11: ID, name= int
-	11: ID, name= s
-	11: =
-	11: NUM, val= 0
-	11: ,
-	11: ID, name= i
-	11: ;
-12:		int ary[5];
-	12: ID, name= int
-	12: ID, name= ary
-	12: [
-	12: NUM, val= 5
-	12: ]
-	12: ;
-13:		for (i = 1; i <= n; i =i+1)
-	13: ID, name= for
+8:	}
+	8: }
+9:	
+10:	/* A program to perform Euclid's
+11:		Algorithm to compute gcd. */
+12:	
+13:	int gcd (int u, int v)
+	13: ID, name= int
+	13: ID, name= gcd
 	13: (
-	13: ID, name= i
-	13: =
-	13: NUM, val= 1
-	13: ;
-	13: ID, name= i
-	13: <=
-	13: ID, name= n
-	13: ;
-	13: ID, name= i
-	13: =
-	13: ID, name= i
-	13: +
-	13: NUM, val= 1
+	13: ID, name= int
+	13: ID, name= u
+	13: ,
+	13: ID, name= int
+	13: ID, name= v
 	13: )
-14:			s = s + i;
-	14: ID, name= s
-	14: =
-	14: ID, name= s
-	14: +
-	14: ID, name= i
+14:	{	if (v == 0) return u ;
+	14: {
+	14: ID, name= if
+	14: (
+	14: ID, name= v
+	14: ==
+	14: NUM, val= 0
+	14: )
+	14: ID, name= return
+	14: ID, name= u
 	14: ;
-15:		return s;
+15:		else return gcd(v,u-u/v*v);
+	15: ID, name= else
 	15: ID, name= return
-	15: ID, name= s
+	15: ID, name= gcd
+	15: (
+	15: ID, name= v
+	15: ,
+	15: ID, name= u
+	15: -
+	15: ID, name= u
+	15: ID, name= v
+	15: *
+	15: ID, name= v
+	15: )
 	15: ;
+16:		/* u-u/v*v == u mod v */
+17:	}
+	17: }
+18:	
+19:	void main(void)
+	19: ID, name= void
+	19: ID, name= main
+	19: (
+	19: ID, name= void
+	19: )
+20:	{	int x; int y;
+	20: {
+	20: ID, name= int
+	20: ID, name= x
+	20: ;
+	20: ID, name= int
+	20: ID, name= y
+	20: ;
+21:		x = input(); y = input();
+	21: ID, name= x
+	21: =
+	21: ID, name= input
+	21: (
+	21: )
+	21: ;
+	21: ID, name= y
+	21: =
+	21: ID, name= input
+	21: (
+	21: )
+	21: ;
+22:		output(gcd(x,y));
+	22: ID, name= output
+	22: (
+	22: ID, name= gcd
+	22: (
+	22: ID, name= x
+	22: ,
+	22: ID, name= y
+	22: )
+	22: )
+	22: ;
+23:	}
+	23: }
