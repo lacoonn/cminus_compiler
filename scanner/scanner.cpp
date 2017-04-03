@@ -170,8 +170,13 @@ void get_Token(ifstream &fp_in, ofstream &fp_out)
 		if (now_state == FIN) {
 			if (prev_state == COMMENT1)
 				temp_buf += '/';
-			if (prev_state == ID)
-				temp_string << '\t' << line_num << ": " << "ID, name= " << temp_buf << '\n';
+			if (prev_state == ID) {
+				temp_string << '\t' << line_num << ": ";
+				if (isReserved(temp_buf))
+					temp_string << line_num << ": " << "reserved word: " << temp_buf << '\n';
+				else
+					temp_string << line_num << ": " << "ID, name= " << temp_buf << '\n';
+			}
 			else if (prev_state == NUM)
 				temp_string << '\t' << line_num << ": " << "NUM, val= " << temp_buf << '\n';
 			else if (prev_state == SYM || prev_state == EQ || prev_state == SYM2)

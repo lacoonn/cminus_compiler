@@ -4,8 +4,8 @@ C- COMPILATION: input.c
 2:	testing ERROR code*/
 3:	
 4:	void printString () {
-	4: ID, name= void
-	4: ID, name= printString
+	4: 4: reserved word: void
+	4: 4: ID, name= printString
 	4: (
 	4: )
 	4: {
@@ -13,24 +13,24 @@ C- COMPILATION: input.c
 	5: Error: print5f
 	5: (
 	5: Error: "
-	5: ID, name= Too
-	5: ID, name= Many
+	5: 5: ID, name= Too
+	5: 5: ID, name= Many
 	5: Error: 2rr5r
-	5: ID, name= Code
+	5: 5: ID, name= Code
 	5: Error: "
 	5: )
 	5: ;
 6:		printf("Com/*COMMENT*/ment");
-	6: ID, name= printf
+	6: 6: ID, name= printf
 	6: (
 	6: Error: "
-	6: ID, name= Com
-	6: ID, name= ment
+	6: 6: ID, name= Com
+	6: 6: ID, name= ment
 	6: Error: "
 	6: )
 	6: ;
 7:		puts("55c3/*PUPPET*/333")
-	7: ID, name= puts
+	7: 7: ID, name= puts
 	7: (
 	7: Error: "
 	7: Error: 55c3
@@ -44,39 +44,39 @@ C- COMPILATION: input.c
 11:		Algorithm to compute gcd. */
 12:	
 13:	int gcd (int u, int v)
-	13: ID, name= int
-	13: ID, name= gcd
+	13: 13: reserved word: int
+	13: 13: ID, name= gcd
 	13: (
-	13: ID, name= int
-	13: ID, name= u
+	13: 13: reserved word: int
+	13: 13: ID, name= u
 	13: ,
-	13: ID, name= int
-	13: ID, name= v
+	13: 13: reserved word: int
+	13: 13: ID, name= v
 	13: )
 14:	{	if (v == 0) return u ;
 	14: {
-	14: ID, name= if
+	14: 14: reserved word: if
 	14: (
-	14: ID, name= v
+	14: 14: ID, name= v
 	14: ==
 	14: NUM, val= 0
 	14: )
-	14: ID, name= return
-	14: ID, name= u
+	14: 14: reserved word: return
+	14: 14: ID, name= u
 	14: ;
 15:		else return gcd(v,u-u/v*v);
-	15: ID, name= else
-	15: ID, name= return
-	15: ID, name= gcd
+	15: 15: reserved word: else
+	15: 15: reserved word: return
+	15: 15: ID, name= gcd
 	15: (
-	15: ID, name= v
+	15: 15: ID, name= v
 	15: ,
-	15: ID, name= u
+	15: 15: ID, name= u
 	15: -
-	15: ID, name= u
-	15: ID, name= v
+	15: 15: ID, name= u
+	15: 15: ID, name= v
 	15: *
-	15: ID, name= v
+	15: 15: ID, name= v
 	15: )
 	15: ;
 16:		/* u-u/v*v == u mod v */
@@ -84,40 +84,40 @@ C- COMPILATION: input.c
 	17: }
 18:	
 19:	void main(void)
-	19: ID, name= void
-	19: ID, name= main
+	19: 19: reserved word: void
+	19: 19: ID, name= main
 	19: (
-	19: ID, name= void
+	19: 19: reserved word: void
 	19: )
 20:	{	int x; int y;
 	20: {
-	20: ID, name= int
-	20: ID, name= x
+	20: 20: reserved word: int
+	20: 20: ID, name= x
 	20: ;
-	20: ID, name= int
-	20: ID, name= y
+	20: 20: reserved word: int
+	20: 20: ID, name= y
 	20: ;
 21:		x = input(); y = input();
-	21: ID, name= x
+	21: 21: ID, name= x
 	21: =
-	21: ID, name= input
+	21: 21: ID, name= input
 	21: (
 	21: )
 	21: ;
-	21: ID, name= y
+	21: 21: ID, name= y
 	21: =
-	21: ID, name= input
+	21: 21: ID, name= input
 	21: (
 	21: )
 	21: ;
 22:		output(gcd(x,y));
-	22: ID, name= output
+	22: 22: ID, name= output
 	22: (
-	22: ID, name= gcd
+	22: 22: ID, name= gcd
 	22: (
-	22: ID, name= x
+	22: 22: ID, name= x
 	22: ,
-	22: ID, name= y
+	22: 22: ID, name= y
 	22: )
 	22: )
 	22: ;
