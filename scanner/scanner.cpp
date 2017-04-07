@@ -8,7 +8,7 @@ using namespace std;
 #define BIGBUF 1024
 #define SMALLBUF 128
 
-typedef enum state { ID, NUM, SYM, EQ, SYM2, COMMENT1, COMMENT2, COMMENT3, START, FIN, ERROR, IDNUM };
+typedef enum state { ID, NUM, SYM, EQ, SYM2, WOW, COMMENT1, COMMENT2, COMMENT3, START, FIN, ERROR, IDNUM };
 
 void get_Token(ifstream &fp_in, ofstream &fp_out);
 void error_handling(char *message);
@@ -49,23 +49,174 @@ void get_Token(ifstream &fp_in, ofstream &fp_out)
 {
 	enum state now_state = START;
 	enum state prev_state = START;
-	char temp;
+	char temp = 0, line_char[256];
 	stringstream temp_string; // temporary string for many object
 	string line_buf; //save one line
 	string words_buf; //save words token
 	string temp_buf; // save small tokens
-	int line_num = 1;
+	string line_string; // line string of getline
+	int line_num = 1, ptr;
 
 	temp_string << line_num << ':' << '\t';
 	line_buf = temp_string.str();
 	temp_string.str("");
-	fp_in.get(temp);
+
 	while (!fp_in.eof()) {
-		switch (now_state) {
-		case START:
-			if (isWS(temp)) {
+		fp_in.getline(line_char, 256);
+		line_string = line_char;
+		line_string += '\n';
+		ptr = 0;
+		cout << line_string;
+
+		while (1) {
+			if (now_state != FIN) {
+				temp = line_string.at(ptr++);
+			}
+			if (now_state == FIN) {
 				now_state = START;
-				/*
+			}
+			switch (now_state) {
+			case START:
+				if (isWS(temp)) {
+					now_state = START;
+					/*
+					// 개행문자를 받는 것을 기준으로 한 세트를 출력합니다.
+					if (temp == '\n') {
+						line_buf += '\n';
+						fp_out << line_buf;
+						fp_out << words_buf;
+						temp_string << ++line_num << ':' << '\t';
+						line_buf = temp_string.str();
+						temp_string.str("");
+						words_buf = ""; // line, words 버퍼 비우기
+					}
+					*/
+				}
+				else if (isLetter(temp))
+					now_state = ID;
+				else if (isDigit(temp))
+					now_state = NUM;
+				else if (isSymbol(temp)) {
+					if (temp == '<' || temp == '>' || temp == '=') // 뒤에 심볼이 하나 더 올 수 있으면 SYM 상태
+						now_state = SYM;
+					else if (temp == '!')
+						now_state = WOW;
+					else if (temp == '/') // /가 오면 주석을 대기하는 상태
+						now_state = COMMENT1;
+					else
+						now_state = SYM2;
+				}
+				else
+					now_state = ERROR;
+				break;
+			case ID:
+				if (isLetter(temp))
+					now_state = ID;
+				else if (isDigit(temp))
+					now_state = IDNUM;
+				else if (isSymbol(temp) || isWS(temp))
+					now_state = FIN;
+				else
+					now_state = FIN;
+				break;
+			case NUM:
+				if (isDigit(temp))
+					now_state = NUM;
+				else if (isLetter(temp))
+					now_state = IDNUM;
+				else if (isSymbol(temp) || isWS(temp))
+					now_state = FIN;
+				else
+					now_state = FIN;
+				break;
+			case SYM:
+				if (temp == '=')
+					now_state = EQ;
+				else if (isLetter(temp) || isDigit(temp) || isSymbol(temp) || isWS(temp))
+					now_state = FIN;
+				else
+					now_state = FIN;
+				break;
+			case EQ:
+				if (isLetter(temp) || isDigit(temp) || isSymbol(temp) || isWS(temp))
+					now_state = FIN;
+				else
+					now_state = FIN;
+				break;
+			case SYM2:
+				if (isLetter(temp) || isDigit(temp) || isSymbol(temp) || isWS(temp))
+					now_state = FIN;
+				else
+					now_state = FIN;
+				break;
+			case WOW:
+				if (temp == '=')
+					now_state = EQ;
+				else if (isLetter(temp) || isDigit(temp) || isWS(temp) || isSymbol(temp))
+					now_state = FIN;
+				else
+					now_state = ERROR;
+			case COMMENT1:
+				if (temp == '*')
+					now_state = COMMENT2;
+				else
+					now_state = FIN;
+				break;
+			case COMMENT2:
+				if (temp == '*')
+					now_state = COMMENT3;
+				else
+					now_state = COMMENT2;
+				break;
+			case COMMENT3:
+				if (temp == '*')
+					now_state = COMMENT3;
+				else if (temp == '/')
+					now_state = START;
+				else
+					now_state = COMMENT2;
+				break;
+			case ERROR:
+				if (isLetter(temp) || isDigit(temp) || isSymbol(temp) || isWS(temp))
+					now_state = FIN;
+				else
+					now_state = ERROR;
+				break;
+			case IDNUM:
+				if (isLetter(temp) || isDigit(temp))
+					now_state = IDNUM;
+				else
+					now_state = FIN;
+				break;
+
+			}
+			if (now_state == FIN) {
+				if (prev_state == COMMENT1)
+					temp_buf += '/';
+				if (prev_state == ID) { // ID에서 올 때 예약어인지 확인
+					temp_string << '\t';
+					if (isReserved(temp_buf))
+						temp_string << line_num << ": " << "reserved word: " << temp_buf << '\n';
+					else
+						temp_string << line_num << ": " << "ID, name= " << temp_buf << '\n';
+				}
+				else if (prev_state == NUM)
+					temp_string << '\t' << line_num << ": " << "NUM, val= " << temp_buf << '\n';
+				else if (prev_state == SYM || prev_state == EQ || prev_state == SYM2)
+					temp_string << '\t' << line_num << ": " << temp_buf << '\n';
+				else if (prev_state == ERROR || prev_state == IDNUM || prev_state == WOW)
+					temp_string << '\t' << line_num << ": " << "Error: " << temp_buf << '\n';
+				words_buf.append(temp_string.str());
+				temp_buf = ""; //temp_buf를 비운다
+				temp_string.str(""); // stream을 비운다
+			}
+
+			if (now_state != FIN) {
+				if (temp != '\n')
+					line_buf += temp;
+				if (!isWS(temp) && now_state != COMMENT1 && now_state != COMMENT2 &&
+					now_state != COMMENT3 && prev_state != COMMENT3)
+					temp_buf += temp;
 				// 개행문자를 받는 것을 기준으로 한 세트를 출력합니다.
 				if (temp == '\n') {
 					line_buf += '\n';
@@ -75,145 +226,16 @@ void get_Token(ifstream &fp_in, ofstream &fp_out)
 					line_buf = temp_string.str();
 					temp_string.str("");
 					words_buf = ""; // line, words 버퍼 비우기
+					break;
 				}
-				*/
 			}
-			else if (isLetter(temp))
-				now_state = ID;
-			else if (isDigit(temp))
-				now_state = NUM;
-			else if (isSymbol(temp)) {
-				if (temp == '<' || temp == '>' || temp == '=' || temp == '!') // 뒤에 심볼이 하나 더 올 수 있으면 SYM 상태
-					now_state = SYM;
-				else if (temp == '/') // /가 오면 주석을 대기하는 상태
-					now_state = COMMENT1;
-				else
-					now_state = SYM2;
-			}
-			else
-				now_state = ERROR;
-			break;
-		case ID:
-			if (isLetter(temp))
-				now_state = ID;
-			else if (isDigit(temp))
-				now_state = IDNUM;
-			else if (isSymbol(temp) || isWS(temp))
-				now_state = FIN;
-			else
-				now_state = FIN;
-			break;
-		case NUM:
-			if (isDigit(temp))
-				now_state = NUM;
-			else if (isLetter(temp))
-				now_state = IDNUM;
-			else if (isSymbol(temp) || isWS(temp))
-				now_state = FIN;
-			else
-				now_state = FIN;
-			break;
-		case SYM:
-			if (temp == '=')
-				now_state = EQ;
-			else if (isLetter(temp) || isDigit(temp) || isSymbol(temp) || isWS(temp))
-				now_state = FIN;
-			else
-				now_state = FIN;
-			break;
-		case EQ:
-			if (isLetter(temp) || isDigit(temp) || isSymbol(temp) || isWS(temp))
-				now_state = FIN;
-			else
-				now_state = FIN;
-			break;
-		case SYM2:
-			if (isLetter(temp) || isDigit(temp) || isSymbol(temp) || isWS(temp))
-				now_state = FIN;
-			else
-				now_state = FIN;
-			break;
-		case COMMENT1:
-			if (temp == '*')
-				now_state = COMMENT2;
-			else
-				now_state = FIN;
-			break;
-		case COMMENT2:
-			if (temp == '*')
-				now_state = COMMENT3;
-			else
-				now_state = COMMENT2;
-			break;
-		case COMMENT3:
-			if (temp == '*')
-				now_state = COMMENT3;
-			else if (temp == '/')
-				now_state = START;
-			else
-				now_state = COMMENT2;
-			break;
-		case ERROR:
-			if (isLetter(temp) || isDigit(temp) || isSymbol(temp) || isWS(temp))
-				now_state = FIN;
-			else
-				now_state = ERROR;
-			break;
-		case IDNUM:
-			if (isLetter(temp) || isDigit(temp))
-				now_state = IDNUM;
-			else
-				now_state = FIN;
-			break;
+			//FIN에서 출력할 때를 위해 전의 상태를 저장
+			prev_state = now_state;
 
-		}
-		if (now_state == FIN) {
-			if (prev_state == COMMENT1)
-				temp_buf += '/';
-			if (prev_state == ID) {
-				temp_string << '\t' << line_num << ": ";
-				if (isReserved(temp_buf))
-					temp_string << line_num << ": " << "reserved word: " << temp_buf << '\n';
-				else
-					temp_string << line_num << ": " << "ID, name= " << temp_buf << '\n';
-			}
-			else if (prev_state == NUM)
-				temp_string << '\t' << line_num << ": " << "NUM, val= " << temp_buf << '\n';
-			else if (prev_state == SYM || prev_state == EQ || prev_state == SYM2)
-				temp_string << '\t' << line_num << ": " << temp_buf << '\n';
-			else if (prev_state == ERROR || prev_state == IDNUM)
-				temp_string << '\t' << line_num << ": " << "Error: " << temp_buf << '\n';
-			words_buf.append(temp_string.str());
-			temp_buf = ""; //temp_buf를 비운다
-			temp_string.str(""); // stream을 비운다
-		}
-		
-		if (now_state != FIN) {
-			if (temp != '\n')
-				line_buf += temp;
-			if (!isWS(temp) && now_state != COMMENT1 && now_state != COMMENT2 &&
-				now_state != COMMENT3 && prev_state != COMMENT3)
-				temp_buf += temp;
-			// 개행문자를 받는 것을 기준으로 한 세트를 출력합니다.
-			if (temp == '\n') {
-				line_buf += '\n';
-				fp_out << line_buf;
-				fp_out << words_buf;
-				temp_string << ++line_num << ':' << '\t';
-				line_buf = temp_string.str();
-				temp_string.str("");
-				words_buf = ""; // line, words 버퍼 비우기
-			}
-
-		}
-		//FIN에서 출력할 때를 위해 전의 상태를 저장
-		prev_state = now_state;
-		// FIN일 경우 START 상태가 되고 같은 문자를 한번 더 읽는다.
-		if (now_state != FIN)
-			fp_in.get(temp);
-		if (now_state == FIN) {
-			now_state = START;
-		}
+		}	
+	}
+	if (now_state == COMMENT2 || now_state == COMMENT3) {
+		fp_out << "Error: stop before ending";
 	}
 }
 
@@ -240,7 +262,7 @@ int isWS(char input)
 
 int isSymbol(char input) {
 	if (input == '+' || input == '-' || input == '*' || input == '/' || input == '<' || input == '>' ||
-		input == '=' || input == '!' || input == ';' || input == ',' || input == '(' || input == ')' ||
+		input == '=' || input == ';' || input == ',' || input == '(' || input == ')' ||
 		input == '[' || input == ']' || input == '{' || input == '}')
 		return 1;
 	return 0;

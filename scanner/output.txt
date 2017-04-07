@@ -3,123 +3,93 @@ C- COMPILATION: input.c
 1:	/*	This comment is for
 2:	testing ERROR code*/
 3:	
-4:	void printString () {
-	4: 4: reserved word: void
-	4: 4: ID, name= printString
-	4: (
-	4: )
-	4: {
-5:		print5f("Too Many 2rr5r Code");
-	5: Error: print5f
-	5: (
-	5: Error: "
-	5: 5: ID, name= Too
-	5: 5: ID, name= Many
-	5: Error: 2rr5r
-	5: 5: ID, name= Code
-	5: Error: "
-	5: )
-	5: ;
-6:		printf("Com/*COMMENT*/ment");
-	6: 6: ID, name= printf
+4:	1234 zxc 1c1c1
+	4: NUM, val= 1234
+	4: ID, name= zxc
+	4: Error: 1c1c1
+5:	
+6:	void printString () {
+	6: reserved word: void
+	6: ID, name= printString
 	6: (
-	6: Error: "
-	6: 6: ID, name= Com
-	6: 6: ID, name= ment
-	6: Error: "
 	6: )
-	6: ;
-7:		puts("55c3/*PUPPET*/333")
-	7: 7: ID, name= puts
+	6: {
+7:		print5f("Too Many 2rr5r Code");
+	7: Error: print5f
 	7: (
 	7: Error: "
-	7: Error: 55c3
-	7: NUM, val= 333
+	7: ID, name= Too
+	7: ID, name= Many
+	7: Error: 2rr5r
+	7: ID, name= Code
 	7: Error: "
 	7: )
-8:	}
-	8: }
-9:	
-10:	/* A program to perform Euclid's
-11:		Algorithm to compute gcd. */
-12:	
-13:	int gcd (int u, int v)
-	13: 13: reserved word: int
-	13: 13: ID, name= gcd
-	13: (
-	13: 13: reserved word: int
-	13: 13: ID, name= u
-	13: ,
-	13: 13: reserved word: int
-	13: 13: ID, name= v
-	13: )
-14:	{	if (v == 0) return u ;
-	14: {
-	14: 14: reserved word: if
-	14: (
-	14: 14: ID, name= v
-	14: ==
-	14: NUM, val= 0
-	14: )
-	14: 14: reserved word: return
-	14: 14: ID, name= u
-	14: ;
-15:		else return gcd(v,u-u/v*v);
-	15: 15: reserved word: else
-	15: 15: reserved word: return
-	15: 15: ID, name= gcd
+	7: ;
+8:		printf("Com/*COMMENT*/ment");
+	8: ID, name= printf
+	8: (
+	8: Error: "
+	8: ID, name= Com
+	8: ID, name= ment
+	8: Error: "
+	8: )
+	8: ;
+9:		puts("55c3/*PUPPET*/333")
+	9: ID, name= puts
+	9: (
+	9: Error: "
+	9: Error: 55c3
+	9: NUM, val= 333
+	9: Error: "
+	9: )
+10:	}
+	10: }
+11:	
+12:	/* A program to perform Euclid's
+13:		Algorithm to compute gcd. */
+14:	
+15:	int gcd (int u, int v)
+	15: reserved word: int
+	15: ID, name= gcd
 	15: (
-	15: 15: ID, name= v
+	15: reserved word: int
+	15: ID, name= u
 	15: ,
-	15: 15: ID, name= u
-	15: -
-	15: 15: ID, name= u
-	15: 15: ID, name= v
-	15: *
-	15: 15: ID, name= v
+	15: reserved word: int
+	15: ID, name= v
 	15: )
-	15: ;
-16:		/* u-u/v*v == u mod v */
-17:	}
-	17: }
-18:	
-19:	void main(void)
-	19: 19: reserved word: void
-	19: 19: ID, name= main
-	19: (
-	19: 19: reserved word: void
-	19: )
-20:	{	int x; int y;
-	20: {
-	20: 20: reserved word: int
-	20: 20: ID, name= x
-	20: ;
-	20: 20: reserved word: int
-	20: 20: ID, name= y
-	20: ;
-21:		x = input(); y = input();
-	21: 21: ID, name= x
-	21: =
-	21: 21: ID, name= input
-	21: (
-	21: )
-	21: ;
-	21: 21: ID, name= y
-	21: =
-	21: 21: ID, name= input
-	21: (
-	21: )
-	21: ;
-22:		output(gcd(x,y));
-	22: 22: ID, name= output
-	22: (
-	22: 22: ID, name= gcd
-	22: (
-	22: 22: ID, name= x
-	22: ,
-	22: 22: ID, name= y
-	22: )
-	22: )
-	22: ;
-23:	}
-	23: }
+16:	{	if (v == 0) return u ;
+	16: {
+	16: reserved word: if
+	16: (
+	16: ID, name= v
+	16: ==
+	16: NUM, val= 0
+	16: )
+	16: reserved word: return
+	16: ID, name= u
+	16: ;
+17:		else return gcd(v,u-u/v*v);
+	17: reserved word: else
+	17: reserved word: return
+	17: ID, name= gcd
+	17: (
+	17: ID, name= v
+	17: ,
+	17: ID, name= u
+	17: -
+	17: ID, name= u
+	17: ID, name= v
+	17: *
+	17: ID, name= v
+	17: )
+	17: ;
+18:		/* u-u/v*v == u mod v * /
+19:	}
+20:	
+21:	void main(void)
+22:	{	int x; int y;
+23:		x = input(); y = input();
+24:		output(gcd(x,y));
+25:	}
+Error: stop before ending

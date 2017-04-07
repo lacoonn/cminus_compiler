@@ -1,6 +1,8 @@
 /*	This comment is for
 testing ERROR code*/
 
+1234 zxc 1c1c1
+
 void printString () {
 	print5f("Too Many 2rr5r Code");
 	printf("Com/*COMMENT*/ment");
@@ -13,7 +15,7 @@ void printString () {
 int gcd (int u, int v)
 {	if (v == 0) return u ;
 	else return gcd(v,u-u/v*v);
-	/* u-u/v*v == u mod v */
+	/* u-u/v*v == u mod v * /
 }
 
 void main(void)
