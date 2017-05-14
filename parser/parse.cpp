@@ -7,24 +7,47 @@ using namespace std;
 
 // dfa에서 나온 state들입니다.
 enum state { ID, NUM, SYM, EQ, SYM2, WOW, COMMENT1, COMMENT2, COMMENT3, START, FIN, ERROR, IDNUM };
+enum tokenType { INT, VOID, ID, NUM, };
+
+
+class treeNode
+{
+public:
+	treeNode *sibling;
+	treeNode *children;
+	treeNode()
+	{
+		sibling = NULL;
+		children = NULL;
+	}
+};
 
 void getToken(ifstream &fp_in, ofstream &fp_out);
+void parse(ifstream &fs_in, ofstream &fs_out);
 bool isLetter(char input);
 bool isDigit(char input);
 bool isWS(char input);
 bool isSymbol(char input);
 bool isReserved(string input);
+static void match();
+static treeNode *program();
+static treeNode *declaration_list();
+static treeNode *declaration();
+static treeNode *var_declaration();
+static treeNode *type_specifier();
+static treeNode *fun_declaration();
+
+static tokenType token;
+
 
 int main(int argc, char **argv)
-{  
+{
+	string input_file_name;
+	cin >> input_file_name;
+	ifstream fp_in(input_file_name);
+	ofstream fp_out("scan.txt");
 
-	if (argc != 3)
-		fputs("scan.exe <input.c> <output.txt>", stderr);
-
-	ifstream fp_in(argv[1]);
-	ofstream fp_out(argv[2]);
-
-	fp_out << "C- COMPILATION: " << argv[1] << "\n\n";
+	//fp_out << "C- COMPILATION: " << argv[1] << "\n\n";
 
 	// getToken 함수로 파일스트림을 넘겨주면 getToken 함수가 파일스트림에서
 	// 텍스트를 읽어 토큰으로 분해 후 출력합니다.
@@ -33,8 +56,71 @@ int main(int argc, char **argv)
 	fp_in.close();
 	fp_out.close();
 
+	ifstream fs_in("scan.txt");
+	ofstream fs_out("parse.txt");
+
+	fs_in.close();
+	fs_out.close();
+
+	parse(fs_in, fs_out);
+
 	return 0;
 }
+
+void parse(ifstream &fs_in, ofstream &fs_out)
+{
+
+}
+
+static void match()
+{
+
+}
+static treeNode *program()
+{
+	treeNode *t = declaration_list();
+	
+	//여기는 follow가 필요한 구간
+	//while()
+
+	return t;
+}
+static treeNode *declaration_list()
+{
+	treeNode *t = NULL;
+	switch (token)
+	{
+	case INT:
+	case VOID:
+		t = declaration();
+		treeNode *temp = t;
+		while (token == INT || token == VOID) {
+			temp->sibling = declaration();
+			temp = temp->sibling;
+		}
+
+
+	}
+}
+static treeNode *declaration()
+{
+
+}
+static treeNode *var_declaration()
+{
+
+}
+static treeNode *type_specifier()
+{
+
+}
+static treeNode *fun_declaration()
+{
+
+}
+
+
+
 
 void getToken(ifstream &fp_in, ofstream &fp_out)
 {
@@ -154,26 +240,26 @@ void getToken(ifstream &fp_in, ofstream &fp_out)
 			}
 			// 모든 출력은 FIN에서 이루어집니다.
 			// FIN에서 출력한 후 새로 받은 문자를 버리지 않기 위해 START 상태로 다시 집어넣습니다.
-			if (now_state == FIN) { 
+			if (now_state == FIN) {
 				if (prev_state == COMMENT1) // 주석 시작부는 이게 주석으로 갈지 가지 않을지 미리 알 수 없기 때문에 FIN에서 보정해줍니다.
 					temp_buf += '/';
 				if (prev_state == ID) { // ID일 경우 출력양식입니다.
 					temp_string << '\t';
 					if (isReserved(temp_buf)) // ID에서 올 때 예약어인지 확인합니다.
-						temp_string << line_num << ": " << "reserved word: " << temp_buf << '\n';
+						temp_string << line_num << ": " << "reserved: " << temp_buf << '\n';
 					else
-						temp_string << line_num << ": " << "ID, name= " << temp_buf << '\n';
+						temp_string << line_num << ": " << "ID: " << temp_buf << '\n';
 				}
 				else if (prev_state == NUM) // NUM일 경우 출력양식입니다.
-					temp_string << '\t' << line_num << ": " << "NUM, val= " << temp_buf << '\n';
+					temp_string << '\t' << line_num << ": " << "NUM: " << temp_buf << '\n';
 				else if (prev_state == SYM || prev_state == EQ || prev_state == SYM2 || prev_state == COMMENT1) // symbol일 경우 출력양식입니다.
-					temp_string << '\t' << line_num << ": " << temp_buf << '\n';
+					temp_string << '\t' << line_num << ": " << "SYM: " << temp_buf << '\n';
 				else if (prev_state == ERROR || prev_state == IDNUM || prev_state == WOW) // 에러로 처리되는 상태일 경우 출력양식입니다.
 					temp_string << '\t' << line_num << ": " << "Error: " << temp_buf << '\n';
 				words_buf.append(temp_string.str()); // 만들어진 토큰(출력양식)을 버퍼에 추가합니다.
-				// 사용했던 임시 버퍼를 비웁니다.
+													 // 사용했던 임시 버퍼를 비웁니다.
 				temp_buf = "";
-				temp_string.str(""); 
+				temp_string.str("");
 			}
 
 			if (now_state != FIN) {
@@ -184,20 +270,21 @@ void getToken(ifstream &fp_in, ofstream &fp_out)
 				// 개행문자를 받는 것을 기준으로 한 라인의 세트를 출력합니다.
 				if (temp == '\n') {
 					// temp_string에 출력 양식을 맞추고 한 line을 출력합니다.
-					temp_string << line_num++ << ':' << '\t' << line_string;
-					fp_out << temp_string.str();
+					//temp_string << line_num << ':' << '\t' << line_string;
+					line_num++;
+					//fp_out << temp_string.str();
 					// 한 라인에서 생성한 토큰을 출력합니다.
 					fp_out << words_buf;
 					// 출력한 버퍼를 비웁니다.
 					temp_string.str("");
-					words_buf = ""; 
+					words_buf = "";
 					break;
 				}
 			}
 			//FIN에서 출력할 때를 위해 이전의 상태를 저장합니다.
 			prev_state = now_state;
 
-		}	
+		}
 	}
 	fp_out << line_num++ << ':' << '\t' << "EOF\n";
 	// 주석 상태에서 종료되면 에러메시지를 출력합니다.
