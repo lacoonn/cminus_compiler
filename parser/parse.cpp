@@ -43,6 +43,8 @@ static treeNode *fun_declaration();
 
 static tokenType token;
 static string tokenData;
+static tokenType lhd;
+static string lhdData;
 
 
 int main(int argc, char **argv)
@@ -79,7 +81,10 @@ void parse(ifstream &fs_in, ofstream &fs_out)
 
 void getToken()
 {
-
+	token;
+	tokenData;
+	lhd;
+	lhdData;
 }
 
 void match(tokenType expected)
@@ -415,7 +420,7 @@ treeNode *expression_stmt()
 	treeNode *t = new treeNode(EMPTY, NULL);
 	int count = 0;
 
-	if (token == ID) {
+	if (token == ID || token == NUM || token == LPAREN) {
 		t->children[count++] = expression();
 
 		t->children[count++] = new treeNode(token, tokenData);
@@ -507,37 +512,28 @@ treeNode *expression()
 {
 	treeNode *t = new treeNode(EMPTY, NULL);
 	int count = 0;
-	tokenType tempToken;
-	string tempData;
-
-	tempToken = token;
-	tempData = tokenData;
-	getToken();
 
 	// var로 들어가는 경우
-	while (tempToken == ID && (token == ASSIGN || token == LSQUARE)) {
-		t->children[count++] = var(tempToken, tempData);
+	while (token == ID && (lhd == ASSIGN || lhd == LSQUARE)) {
+		t->children[count++] = var();
 
 		t->children[count++] = new treeNode(token, tokenData);
 		match(ASSIGN);
-
-		tempToken = token;
-		tempData = tokenData;
-		getToken();
 	}
-	if(tempToken == LPAREN || tempToken == ID || tempToken == NUM)
-		t->children[count++] = simple_expression(tempToken, tempData);
+	// var에 들어가지 않는 경우
+	if(token == LPAREN || token == ID || token == NUM)
+		t->children[count++] = simple_expression();
 
 	return t;
 }
-// LPAREN, ID, NUM
-treeNode *var(tokenType tempToken, string tempData)
+
+treeNode *var()
 {
 	treeNode *t = new treeNode(EMPTY, NULL);
 	int count = 0;
 
-	t->children[count++] = new treeNode(tempToken, tempData);
-	//match(ID); 하나 당겨썼기때문에 match하면 안됨
+	t->children[count++] = new treeNode(token, tokenData);
+	match(ID);
 
 	if (token == LSQUARE) {
 		t->children[count++] = new treeNode(token, tokenData);
@@ -556,18 +552,19 @@ treeNode *var(tokenType tempToken, string tempData)
 	return t;
 }
 
-treeNode *simple_expression(tokenType tempToken, string tempData)
+treeNode *simple_expression()
 {
 	treeNode *t = new treeNode(EMPTY, NULL);
 	int count = 0;
 
-	if (tempToken == LPAREN || tempToken == ID || tempToken == NUM)
-		t->children[count++] = additive_expression(tempToken, tempData);
+	if (token == LPAREN || token == ID || token == NUM) {
+		t->children[count++] = additive_expression();
 
-	if (token == BEQUAL || token == BIGGER || token == SMALLER || token == SEQUAL || token == EQUAL || token == NEQUAL) {
-		t->children[count++] = relop();
+		if (token == BEQUAL || token == BIGGER || token == SMALLER || token == SEQUAL || token == EQUAL || token == NEQUAL) {
+			t->children[count++] = relop();
 
-		t->children[count++] = additive_expression(token, tokenData);
+			t->children[count++] = additive_expression();
+		}
 	}
 	else
 	{
@@ -581,27 +578,55 @@ treeNode *relop()
 {
 	treeNode *t = new treeNode(EMPTY, NULL);
 	int count = 0;
-	//token == SMALLER || token == SEQUAL || token == EQUAL || token == NEQUAL)
-	if (token == BEQUAL) {
-
+	
+	if (token == SEQUAL) {
+		t->children[count++] = new treeNode(token, tokenData);
+		match(SEQUAL);
 	}
 	else if (token == BIGGER) {
-
+		t->children[count++] = new treeNode(token, tokenData);
+		match(BIGGER);
 	}
 	else if (token == SMALLER) {
-
+		t->children[count++] = new treeNode(token, tokenData);
+		match(SMALLER);
+	}
+	else if (token == BEQUAL) {
+		t->children[count++] = new treeNode(token, tokenData);
+		match(BEQUAL);
+	}
+	else if (token == EQUAL) {
+		t->children[count++] = new treeNode(token, tokenData);
+		match(EQUAL);
+	}
+	else if (token == NEQUAL) {
+		t->children[count++] = new treeNode(token, tokenData);
+		match(NEQUAL);
+	}
+	else {
+		cout << "relop error!" << endl;
 	}
 
 	return t;
 }
 
-treeNode *additive_expression(tokenType tempToken, string tempData)
+treeNode *additive_expression()
 {
 	treeNode *t = new treeNode(EMPTY, NULL);
 	int count = 0;
 
-	if (tempToken == LPAREN || tempToken == ID || tempToken == NUM)
-		t->children[count++] = term(tempToken, tempData);
+	if (lhd == LPAREN || lhd == ID || lhd == NUM) {
+		t->children[count++] = term();
+		
+		while (token == PLUS || token == MINUS) {
+			t->children[count++] = addop();
+
+			t->children[count++] = term();
+		}
+	}
+	else {
+		cout << "additive_expression error!" << endl;
+	}
 
 	return t;
 }
@@ -611,16 +636,38 @@ treeNode *addop()
 	treeNode *t = new treeNode(EMPTY, NULL);
 	int count = 0;
 
+	if (token == PLUS) {
+		t->children[count++] = new treeNode(token, tokenData);
+		match(PLUS);
+	}
+	else if (token == MINUS) {
+		t->children[count++] = new treeNode(token, tokenData);
+		match(PLUS);
+	}
+	else {
+		cout << "addop error!" << endl;
+	}
+
 	return t;
 }
 
-treeNode *term(tokenType tempToken, string tempData)
+treeNode *term()
 {
 	treeNode *t = new treeNode(EMPTY, NULL);
 	int count = 0;
 
-	if (tempToken == LPAREN || tempToken == ID || tempToken == NUM)
-		t->children[count++] = factor(tempToken, tempData);
+	if (token == LPAREN || token == ID || token == NUM) {
+		t->children[count++] = factor();
+
+		while (token == MUL || token == DIV) {
+			t->children[count++] = mulop();
+			
+			t->children[count++] = factor();
+		}
+	}
+	else {
+		cout << "term error!" << endl;
+	}
 
 	return t;
 }
@@ -630,21 +677,74 @@ treeNode *mulop()
 	treeNode *t = new treeNode(EMPTY, NULL);
 	int count = 0;
 
+	if (token == MUL) {
+		t->children[count++] = new treeNode(token, tokenData);
+		match(MUL);
+	}
+	else if (token == DIV) {
+		t->children[count++] = new treeNode(token, tokenData);
+		match(DIV);
+	}
+	else {
+		cout << "mulop error!" << endl;
+	}
+
 	return t;
 }
 
-treeNode *factor(tokenType tempToken, string tempData)
+treeNode *factor()
 {
 	treeNode *t = new treeNode(EMPTY, NULL);
 	int count = 0;
 
+	if (token == LPAREN) {
+		t->children[count++] = new treeNode(token, tokenData);
+		match(LPAREN);
+
+		t->children[count++] = expression();
+
+		t->children[count++] = new treeNode(token, tokenData);
+		match(RPAREN);
+	}
+	else if (token == NUM) {
+		t->children[count++] = new treeNode(token, tokenData);
+		match(NUM);
+	}
+	else if (token == ID) {
+		if (lhd == LPAREN) {
+			t->children[count++] = call();
+		}
+		else {
+			t->children[count++] = var();
+		}
+	}
+	else {
+		cout << "factor error!" << endl;
+	}
+
 	return t;
 }
 
-treeNode *call(tokenType tempToken, string tempData)
+treeNode *call()
 {
 	treeNode *t = new treeNode(EMPTY, NULL);
 	int count = 0;
+
+	if (token == ID) {
+		t->children[count++] = new treeNode(token, tokenData);
+		match(ID);
+
+		t->children[count++] = new treeNode(token, tokenData);
+		match(LPAREN);
+
+		t->children[count++] = args();
+
+		t->children[count++] = new treeNode(token, tokenData);
+		match(RPAREN);
+	}
+	else {
+		cout << "call error!" << endl;
+	}
 
 	return t;
 }
@@ -654,6 +754,18 @@ treeNode *args()
 	treeNode *t = new treeNode(EMPTY, NULL);
 	int count = 0;
 
+	if (token == ID || token == NUM || token == LPAREN) {
+		t->children[count++] = arg_list();
+	}
+	else {
+		if (lhd == RPAREN) {
+			t->children[count++] = new treeNode(EMPTY, NULL);
+		}
+		else {
+			cout << "args error!" << endl;
+		}
+	}
+
 	return t;
 }
 
@@ -661,6 +773,20 @@ treeNode *arg_list()
 {
 	treeNode *t = new treeNode(EMPTY, NULL);
 	int count = 0;
+
+	if (token == ID || token == NUM || token == LPAREN) {
+		t->children[count++] = expression();
+		
+		while (token == COMMA) {
+			t->children[count++] = new treeNode(token, tokenData);
+			match(COMMA);
+
+			t->children[count++] = expression();
+		}
+	}
+	else {
+		cout << "arg_list error!" << endl;
+	}
 
 	return t;
 }
