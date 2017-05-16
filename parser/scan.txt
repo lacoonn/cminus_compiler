@@ -1,71 +1,242 @@
-	4: reserved: int
-	4: ID: gcd
-	4: SYM: (
-	4: reserved: int
-	4: ID: u
-	4: SYM: ,
-	4: reserved: int
-	4: ID: v
-	4: SYM: )
-	5: SYM: {
-	5: reserved: if
-	5: SYM: (
-	5: ID: v
-	5: SYM: ==
-	5: NUM: 0
-	5: SYM: )
-	5: reserved: return
-	5: ID: u
-	5: SYM: ;
-	6: reserved: else
-	6: reserved: return
-	6: ID: gcd
-	6: SYM: (
-	6: ID: v
-	6: SYM: ,
-	6: ID: u
-	6: SYM: -
-	6: ID: u
-	6: SYM: /
-	6: ID: v
-	6: SYM: *
-	6: ID: v
-	6: SYM: )
-	6: SYM: ;
-	8: SYM: }
-	10: reserved: void
-	10: ID: main
-	10: SYM: (
-	10: reserved: void
-	10: SYM: )
-	11: SYM: {
-	11: reserved: int
-	11: ID: x
-	11: SYM: ;
-	11: reserved: int
-	11: ID: y
-	11: SYM: ;
-	12: ID: x
-	12: SYM: =
-	12: ID: input
-	12: SYM: (
-	12: SYM: )
-	12: SYM: ;
-	12: ID: y
-	12: SYM: =
-	12: ID: input
-	12: SYM: (
-	12: SYM: )
-	12: SYM: ;
-	13: ID: output
-	13: SYM: (
-	13: ID: gcd
-	13: SYM: (
-	13: ID: x
-	13: SYM: ,
-	13: ID: y
-	13: SYM: )
-	13: SYM: )
-	13: SYM: ;
-	14: SYM: }
-17:	EOF
+4	RESERVED	int
+4	ID		x
+4	SYM		[
+4	NUM		10
+4	SYM		]
+4	SYM		;
+6	RESERVED	int
+6	ID		minloc
+6	SYM		(
+6	RESERVED	int
+6	ID		a
+6	SYM		[
+6	SYM		]
+6	SYM		,
+6	RESERVED	int
+6	ID		low
+6	SYM		,
+6	RESERVED	int
+6	ID		high
+6	SYM		)
+7	SYM		{
+7	RESERVED	int
+7	ID		i
+7	SYM		;
+7	RESERVED	int
+7	ID		x
+7	SYM		;
+7	RESERVED	int
+7	ID		k
+7	SYM		;
+8	ID		k
+8	SYM		=
+8	ID		low
+8	SYM		;
+9	ID		x
+9	SYM		=
+9	ID		a
+9	SYM		[
+9	ID		low
+9	SYM		]
+9	SYM		;
+10	ID		i
+10	SYM		=
+10	ID		low
+10	SYM		+
+10	NUM		1
+10	SYM		;
+11	RESERVED	while
+11	SYM		(
+11	ID		i
+11	SYM		<
+11	ID		high
+11	SYM		)
+12	SYM		{
+12	RESERVED	if
+12	SYM		(
+12	ID		a
+12	SYM		[
+12	ID		i
+12	SYM		]
+12	SYM		<
+12	ID		x
+12	SYM		)
+13	SYM		{
+13	ID		x
+13	SYM		=
+13	ID		a
+13	SYM		[
+13	ID		i
+13	SYM		]
+13	SYM		;
+14	ID		k
+14	SYM		=
+14	ID		i
+14	SYM		;
+14	SYM		}
+15	ID		i
+15	SYM		=
+15	ID		i
+15	SYM		+
+15	NUM		1
+15	SYM		;
+16	SYM		}
+17	RESERVED	return
+17	ID		k
+17	SYM		;
+18	SYM		}
+20	RESERVED	void
+20	ID		sort
+20	SYM		(
+20	RESERVED	int
+20	ID		a
+20	SYM		[
+20	SYM		]
+20	SYM		,
+20	RESERVED	int
+20	ID		low
+20	SYM		,
+20	RESERVED	int
+20	ID		high
+20	SYM		)
+21	SYM		{
+21	RESERVED	int
+21	ID		i
+21	SYM		;
+21	RESERVED	int
+21	ID		k
+21	SYM		;
+22	ID		i
+22	SYM		=
+22	ID		low
+22	SYM		;
+24	RESERVED	while
+24	SYM		(
+24	ID		i
+24	SYM		<
+24	ID		high
+24	SYM		-
+24	NUM		1
+24	SYM		)
+25	SYM		{
+25	RESERVED	int
+25	ID		t
+25	SYM		;
+26	ID		k
+26	SYM		=
+26	ID		minloc
+26	SYM		(
+26	ID		a
+26	SYM		,
+26	ID		i
+26	SYM		,
+26	ID		high
+26	SYM		,
+26	ID		i
+26	SYM		)
+26	SYM		;
+27	ID		t
+27	SYM		=
+27	ID		a
+27	SYM		[
+27	ID		k
+27	SYM		]
+27	SYM		;
+28	ID		a
+28	SYM		[
+28	ID		k
+28	SYM		]
+28	SYM		=
+28	ID		a
+28	SYM		[
+28	ID		i
+28	SYM		]
+28	SYM		;
+29	ID		a
+29	SYM		[
+29	ID		i
+29	SYM		]
+29	SYM		=
+29	ID		t
+29	SYM		;
+30	ID		i
+30	SYM		=
+30	ID		i
+30	SYM		+
+30	NUM		1
+30	SYM		;
+31	SYM		}
+32	SYM		}
+34	RESERVED	void
+34	ID		main
+34	SYM		(
+34	RESERVED	void
+34	SYM		)
+35	SYM		{
+35	RESERVED	int
+35	ID		i
+35	SYM		;
+36	ID		i
+36	SYM		=
+36	NUM		0
+36	SYM		;
+37	RESERVED	while
+37	SYM		(
+37	ID		i
+37	SYM		<
+37	NUM		10
+37	SYM		)
+38	SYM		{
+38	ID		x
+38	SYM		[
+38	ID		i
+38	SYM		]
+38	SYM		=
+38	ID		input
+38	SYM		(
+38	SYM		)
+38	SYM		;
+39	ID		i
+39	SYM		=
+39	ID		i
+39	SYM		+
+39	NUM		1
+39	SYM		;
+39	SYM		}
+40	ID		sort
+40	SYM		(
+40	ID		x
+40	SYM		,
+40	NUM		0
+40	SYM		,
+40	NUM		10
+40	SYM		)
+40	SYM		;
+41	ID		i
+41	SYM		=
+41	NUM		0
+41	SYM		;
+42	RESERVED	while
+42	SYM		(
+42	ID		i
+42	SYM		<
+42	NUM		10
+42	SYM		)
+43	SYM		{
+43	ID		output
+43	SYM		(
+43	ID		x
+43	SYM		[
+43	ID		i
+43	SYM		]
+43	SYM		)
+43	SYM		;
+44	ID		i
+44	SYM		=
+44	ID		i
+44	SYM		+
+44	NUM		1
+44	SYM		;
+44	SYM		}
+45	SYM		}
+47	EOF
