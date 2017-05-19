@@ -39,10 +39,12 @@ static void match(tokenType expected);
 static treeNode *program();
 static treeNode *declaration_list();
 static treeNode *declaration();
+static treeNode *declaration_prime();
 static treeNode *var_declaration();
 static treeNode *type_specifier();
 static treeNode *fun_declaration();
 static treeNode *params();
+static treeNode *params_void();
 static treeNode *param_list();
 static treeNode *param();
 static treeNode *compound_stmt();
@@ -53,6 +55,7 @@ static treeNode *expression_stmt();
 static treeNode *selection_stmt();
 static treeNode *iteration_stmt();
 static treeNode *return_stmt();
+static treeNode *return_stmt_prime();
 static treeNode *expression();
 static treeNode *var();
 static treeNode *simple_expression();
@@ -174,8 +177,6 @@ void getToken()
 			lhd = DIV;
 		else
 			cout << "ERROR : " << tempString << " : " << lhdData << endl;
-		//enum tokenType { ID, NUM, INT, VOID, SEMI, LSQUARE, RSQUARE, LPAREN, RPAREN, COMMA, LBRACE, RBRACE, IF, ELSE, WHILE, RETURN, ASSIGN,
-		//SEQUAL, BEQUAL, SMALLER, BIGGER, EQUAL, NEQUAL, PLUS, MINUS, MUL, DIV, EMPTY };
 	}
 	else if (tempString == "RESERVED") {
 		if (lhdData == "int")
@@ -217,7 +218,6 @@ void match(tokenType expected)
 	if (token == expected)
 		getToken();
 	else {
-		// exception
 		cout << "match error!, expected : " << expected << ", line : " << tokenLine << ", token : " << token << ", tokenData : " << tokenData << endl;
 	}
 }
@@ -230,7 +230,8 @@ void parse(ifstream &fs_in, ofstream &fs_out)
 	treeNode *t = new treeNode(EMPTY, "");
 	int count = 0;
 
-	t->children[count++] = program();
+	if (token == INT || token == VOID)
+		t->children[count++] = program();
 
 	if (token != EOS)
 		cout << "Code ends before file" << endl;
@@ -249,53 +250,58 @@ static treeNode *program()
 
 	return t;
 }
+
 // declaration-list -> declaration {{ declaration }}
 static treeNode *declaration_list()
 {
 	treeNode *t = new treeNode(EMPTY, "");
 	int count = 0;
-	
-	if (token == VOID || token == INT) {
-		t->children[count++] = declaration();
-		
-		while (token != EOS) {
-			cout << "delcaration_list iteration : " << count << endl;
-			treeNode *temp = declaration();
-			if (temp->token != EMPTY)
-				t->children[count++] = temp;
-		}
-	}
-	else {
-		// exception
-		cout << "declaration_list!" << endl;
+
+
+	t->children[count++] = declaration();
+
+	while (token != EOS) {
+		cout << "delcaration_list iteration : " << count << endl;
+		treeNode *temp = declaration();
+
+		if (temp->token != EMPTY)
+			t->children[count++] = temp;
 	}
 
 	return t;
 }
+
 // declaration -> type-specifier ID var-declaration | func-declaration
-static treeNode *declaration()
+treeNode *declaration()
 {
 	treeNode *t = new treeNode(EMPTY, "");
 	int count = 0;
 
-	if (token == VOID || token == INT) {
+
 		t->children[count++] = type_specifier();
 
 		t->children[count++] = new treeNode(token, tokenData);
 		match(ID);
 		
-		if (token == SEMI || token == LSQUARE) {
-			t->children[count++] = var_declaration();
-		}
-		else if (token == LPAREN) {
-			t->children[count++] = fun_declaration();
-		}
-		else {
-			cout << "delcaration(inner) error!" << endl;
-		}
+		t->children[count++] = declaration_prime();
+
+	return t;
+}
+
+treeNode *declaration_prime()
+{
+	treeNode *t = new treeNode(EMPTY, "");
+	int count = 0;
+
+	if (token == SEMI || token == LSQUARE) {
+		t->children[count++] = var_declaration();
+	}
+	else if (token == LPAREN) {
+		t->children[count++] = fun_declaration();
 	}
 	else {
-		cout << "delcaration error!" << endl;
+		cout << "declaration_prime ERROR! " << endl;
+		getToken();
 	}
 
 	return t;
@@ -325,7 +331,7 @@ static treeNode *var_declaration()
 	}
 	else {
 		cout << "var_declaration error! " << tokenLine << endl;
-		// 토큰 소비할까
+		getToken();
 	}
 
 	return t;
@@ -347,7 +353,7 @@ static treeNode *type_specifier()
 	}
 	else {
 		cout << "type_specifier error!" << endl;
-		// 토큰 소비할까
+		getToken();
 	}
 
 	return t;
@@ -358,7 +364,7 @@ static treeNode *fun_declaration()
 	treeNode *t = new treeNode(EMPTY, "");
 	int count = 0;
 
-	if (token == LPAREN) {
+
 		t->children[count++] = new treeNode(token, tokenData);
 		match(LPAREN);
 
@@ -368,38 +374,12 @@ static treeNode *fun_declaration()
 		match(RPAREN);
 
 		t->children[count++] = compound_stmt();
-	}
-	else {
-		cout << "fun_declaration error!" << endl;
-	}
+
 
 	return t;
 }
 
-/*
-treeNode *params()
-{
-	treeNode *t = new treeNode(EMPTY, "");
-	int count = 0;
-
-	// 다음 토큰을 읽어서 거기에 따라 갈림(first가 같기때문에)
-	switch (lhd) {
-	case RPAREN:
-		t->children[count++] = new treeNode(token, tokenData);
-		match(VOID);
-		break;
-	case ID:
-		t->children[count++] = param_list();
-		break;
-	default:
-		// exception
-		cout << "params error!" << endl;
-	}
-
-	return t;
-}
-*/
-
+// params -> int ID [ [ ] ] { , param } | void [ ID [ [ ] ] { , param } ]
 treeNode *params()
 {
 	treeNode *t = new treeNode(EMPTY, "");
@@ -428,68 +408,25 @@ treeNode *params()
 		}
 	}
 	else if (token == VOID) {
-		t->children[count++] = new treeNode(token, tokenData);
-		match(VOID);
-
-		if (token == ID) {
-			t->children[count++] = new treeNode(token, tokenData);
-			match(ID);
-
-			if (token == LSQUARE) {
-				t->children[count++] = new treeNode(token, tokenData);
-				match(LSQUARE);
-
-				t->children[count++] = new treeNode(token, tokenData);
-				match(RSQUARE);
-			}
-
-			while (token == COMMA) {
-				t->children[count++] = new treeNode(token, tokenData);
-				match(COMMA);
-
-				t->children[count++] = param();
-			}
-		}
+		t->children[count++] = params_void();
 	}
 	else {
 		cout << "params() ERROR!" << endl;
+		getToken();
 	}
 
 	return t;
 }
 
-treeNode *param_list()
-{
-	treeNode *t = new treeNode(EMPTY, "");
-	int count = 0;
-	
-	if (token == VOID || token == INT) {
-		t->children[count++] = param();
-
-		// param_list의 [[ , [param] ]]
-		while (token == COMMA) {
-			t->children[count++] = new treeNode(token, tokenData);
-			match(COMMA);
-
-			t->children[count++] = param();
-		}
-	}
-	else {
-		cout << "param_list error!" << endl;
-	}
-
-	return t;
-}
-
-treeNode *param()
+treeNode *params_void()
 {
 	treeNode *t = new treeNode(EMPTY, "");
 	int count = 0;
 
-	if (token == VOID || token == INT) {
-		t->children[count++] = type_specifier();
+	t->children[count++] = new treeNode(token, tokenData);
+	match(VOID);
 
-		// param의 ID
+	if (token == ID) {
 		t->children[count++] = new treeNode(token, tokenData);
 		match(ID);
 
@@ -500,21 +437,47 @@ treeNode *param()
 			t->children[count++] = new treeNode(token, tokenData);
 			match(RSQUARE);
 		}
-	}
-	else {
-		// exception
-		cout << "param error!" << endl;
+
+		while (token == COMMA) {
+			t->children[count++] = new treeNode(token, tokenData);
+			match(COMMA);
+
+			t->children[count++] = param();
+		}
 	}
 
 	return t;
 }
 
+// param -> type-specifier ID [[ [ ] ]]
+treeNode *param()
+{
+	treeNode *t = new treeNode(EMPTY, "");
+	int count = 0;
+
+		t->children[count++] = type_specifier();
+
+		t->children[count++] = new treeNode(token, tokenData);
+		match(ID);
+
+		if (token == LSQUARE) {
+			t->children[count++] = new treeNode(token, tokenData);
+			match(LSQUARE);
+
+			t->children[count++] = new treeNode(token, tokenData);
+			match(RSQUARE);
+		}
+
+
+	return t;
+}
+
+// compound-stmt -> { local-declarations statement-list }
 treeNode *compound_stmt()
 {
 	treeNode *t = new treeNode(EMPTY, "");
 	int count = 0;
 
-	if (token == LBRACE) {
 		t->children[count++] = new treeNode(token, tokenData);
 		match(LBRACE);
 
@@ -524,62 +487,56 @@ treeNode *compound_stmt()
 
 		t->children[count++] = new treeNode(token, tokenData);
 		match(RBRACE);
-	}
-	else {
-		cout << "compound_stmt error!" << endl;
-	}
+
 
 	return t;
 }
 
+// local-declarations -> empty {{ type-specifier ID var-declaration }}
 treeNode *local_declarations()
 {
 	treeNode *t = new treeNode(EMPTY, "");
 	int count = 0;
 
 	if (token == INT || token == VOID) {
-		while (token == INT || token == VOID) {
-			// type_specifier
-			t->children[count++] = type_specifier();
+		t->children[count++] = type_specifier();
 
-			t->children[count++] = new treeNode(token, tokenData);
-			match(ID);
+		t->children[count++] = new treeNode(token, tokenData);
+		match(ID);
 
-			t->children[count++] = var_declaration();
-		}
+		t->children[count++] = var_declaration();
 	}
-	else if (token == ID || token == LPAREN || token == NUM || token == LBRACE || token == IF || token == WHILE || token == RETURN || token == SEMI || token == RBRACE) {
-		t->children[count++] = new treeNode(EMPTY, "");
-	}
-	else {
-		// exception
-		cout << "local_declaration" << endl;
+	while (token == INT || token == VOID) {
+		// type_specifier
+		t->children[count++] = type_specifier();
+
+		t->children[count++] = new treeNode(token, tokenData);
+		match(ID);
+
+		t->children[count++] = var_declaration();
 	}
 
 	return t;
 }
 
+// statement-list -> empty {{ statement }}
 treeNode *statement_list()
 {
 	treeNode *t = new treeNode(EMPTY, "");
 	int count = 0;
 
 	if (token == ID || token == LPAREN || token == NUM || token == LBRACE || token == IF || token == WHILE || token == RETURN || token == SEMI) {
-		while (token == ID || token == LPAREN || token == NUM || token == LBRACE || token == IF || token == WHILE || token == RETURN || token == SEMI) {
-			t->children[count++] = statement();
-		}
+		t->children[count++] = statement();
 	}
-	else if (token == RBRACE) {
-		t->children[count++] = new treeNode(EMPTY, "");
+	while (token == ID || token == LPAREN || token == NUM || token == LBRACE || token == IF || token == WHILE || token == RETURN || token == SEMI) {
+		t->children[count++] = statement();
 	}
-	else {
-		// exception
-		cout << "statement_list error!" << endl;
-	}
+
 
 	return t;
 }
 
+// statement -> expression-stmt | compund-stmt | selection-stmt | iteration-stmt | return-stmt
 treeNode *statement()
 {
 	treeNode *t = new treeNode(EMPTY, "");
@@ -601,13 +558,14 @@ treeNode *statement()
 		t->children[count++] = return_stmt();
 	}
 	else {
-		// exception
 		cout << "statement error!" << endl;
+		getToken();
 	}
 
 	return t;
 }
 
+// expression-stmt -> expression ; | ;
 treeNode *expression_stmt()
 {
 	treeNode *t = new treeNode(EMPTY, "");
@@ -625,11 +583,13 @@ treeNode *expression_stmt()
 	}
 	else {
 		cout << "expression_stmt() error! " << endl;
+		getToken();
 	}
 
 	return t;
 }
 
+// selection-stmt -> if ( expression ) statement [ else statement ] 
 treeNode *selection_stmt()
 {
 	treeNode *t = new treeNode(EMPTY, "");
@@ -658,12 +618,12 @@ treeNode *selection_stmt()
 	return t;
 }
 
+// iteration-stmt -> while ( expression ) statement
 treeNode *iteration_stmt()
 {
 	treeNode *t = new treeNode(EMPTY, "");
 	int count = 0;
 
-	if (token == WHILE) {
 		t->children[count++] = new treeNode(token, tokenData);
 		match(WHILE);
 
@@ -676,72 +636,47 @@ treeNode *iteration_stmt()
 		match(RPAREN);
 
 		t->children[count++] = statement();
-	}
-	else {
-		cout << "iteration_stmt error! " << endl;
-	}
 
 	return t;
 }
 
+// return-stmt -> return  return-stmt-prime
 treeNode *return_stmt()
 {
 	treeNode *t = new treeNode(EMPTY, "");
 	int count = 0;
 
-	if (token == RETURN) {
-		t->children[count++] = new treeNode(token, tokenData);
-		match(RETURN);
+	t->children[count++] = new treeNode(token, tokenData);
+	match(RETURN);
 
-		if (token == SEMI) {
-			t->children[count++] = new treeNode(token, tokenData);
-			match(SEMI);
-		}
-		else if (token == ID || token == LPAREN || token == NUM) {
-			t->children[count++] = expression();
-
-			t->children[count++] = new treeNode(token, tokenData);
-			match(SEMI);
-		}
-		else {
-			cout << "return_stmt(inner) error!" << endl;
-		}
-	}
-	else {
-		// exception
-		cout << "return_stmt error!" << endl;
-	}
+	t->children[count++] = return_stmt_prime();
 
 	return t;
 }
-/*
-// expression -> {{ var = }} simple-expression
-treeNode *expression()
+
+// return-stmt-prime -> ; | expression ; 
+treeNode *return_stmt_prime()
 {
 	treeNode *t = new treeNode(EMPTY, "");
 	int count = 0;
 
-	// var로 들어가는 경우
-	if (token == ID && (lhd == ASSIGN || lhd == LSQUARE)) {
-		while (token == ID && (lhd == ASSIGN || lhd == LSQUARE)) {
-			t->children[count++] = var();
-
-			t->children[count++] = new treeNode(token, tokenData);
-			match(ASSIGN);
-		}
-		t->children[count++] = simple_expression();
+	if (token == SEMI) {
+		t->children[count++] = new treeNode(token, tokenData);
+		match(SEMI);
 	}
-	// var에 들어가지 않는 경우
-	else if (token == LPAREN || token == ID || token == NUM) {
-		t->children[count++] = simple_expression();
+	else if (token == ID || token == LPAREN || token == NUM) {
+		t->children[count++] = expression();
+
+		t->children[count++] = new treeNode(token, tokenData);
+		match(SEMI);
 	}
 	else {
-		cout << "expression error!" << endl;
+		cout << "return_stmt error!" << endl;
+		getToken();
 	}
 
 	return t;
 }
-*/
 
 // expression -> simple-expression [[ var = expression ]]
 treeNode *expression()
@@ -766,55 +701,47 @@ treeNode *expression()
 	return t;
 }
 
+// var -> ID [[ [ expression ] ]]
 treeNode *var()
 {
 	treeNode *t = new treeNode(EMPTY, "");
 	int count = 0;
 
-	if (token == ID) {
-		t->children[count++] = new treeNode(token, tokenData);
-		match(ID);
+	t->children[count++] = new treeNode(token, tokenData);
+	match(ID);
 
-		if (token == LSQUARE) {
-			t->children[count++] = new treeNode(token, tokenData);
-			match(LSQUARE);
+	t->children[count++] = new treeNode(token, tokenData);
+	match(LSQUARE);
 
-			t->children[count++] = expression();
+	t->children[count++] = expression();
 
-			t->children[count++] = new treeNode(token, tokenData);
-			match(RSQUARE);
-		}
-	}
-	else {
-		// exception
-		cout << "var error! " << token << tokenData << endl;
-	}
+	t->children[count++] = new treeNode(token, tokenData);
+	match(RSQUARE);
+
 
 	return t;
 }
 
+// simple-expression -> additive-expression [] relop additive-expression ]]
 treeNode *simple_expression()
 {
 	treeNode *t = new treeNode(EMPTY, "");
 	int count = 0;
 
-	if (token == LPAREN || token == ID || token == NUM) {
+
+	t->children[count++] = additive_expression();
+
+	if (token == BEQUAL || token == BIGGER || token == SMALLER || token == SEQUAL || token == EQUAL || token == NEQUAL) {
+		t->children[count++] = relop();
+
 		t->children[count++] = additive_expression();
-
-		if (token == BEQUAL || token == BIGGER || token == SMALLER || token == SEQUAL || token == EQUAL || token == NEQUAL) {
-			t->children[count++] = relop();
-
-			t->children[count++] = additive_expression();
-		}
 	}
-	else
-	{
-		cout << "simple expression error!" << endl;
-	}
+
 
 	return t;
 }
 
+// relop -> <= | < | > | >= | == | !=
 treeNode *relop()
 {
 	treeNode *t = new treeNode(EMPTY, "");
@@ -846,28 +773,33 @@ treeNode *relop()
 	}
 	else {
 		cout << "relop error!" << endl;
+		getToken();
 	}
 
 	return t;
 }
 
+// additive-expression -> term {{ addop term }}
 treeNode *additive_expression()
 {
 	treeNode *t = new treeNode(EMPTY, "");
 	int count = 0;
 
-	if (token == LPAREN || token == ID || token == NUM) {
-		t->children[count++] = term();
-		
-		while (token == PLUS || token == MINUS) {
-			t->children[count++] = addop();
 
-			t->children[count++] = term();
-		}
+	t->children[count++] = term();
+
+	if (token == PLUS || token == MINUS) {
+		t->children[count++] = addop();
+
+		t->children[count++] = term();
 	}
-	else {
-		cout << "additive_expression error!" << endl;
+
+	while (token == PLUS || token == MINUS) {
+		t->children[count++] = addop();
+
+		t->children[count++] = term();
 	}
+
 
 	return t;
 }
@@ -887,6 +819,7 @@ treeNode *addop()
 	}
 	else {
 		cout << "addop error!" << endl;
+		getToken();
 	}
 
 	return t;
@@ -897,17 +830,12 @@ treeNode *term()
 	treeNode *t = new treeNode(EMPTY, "");
 	int count = 0;
 
-	if (token == LPAREN || token == ID || token == NUM) {
-		t->children[count++] = factor();
+	t->children[count++] = factor();
 
-		while (token == MUL || token == DIV) {
-			t->children[count++] = mulop();
-			
-			t->children[count++] = factor();
-		}
-	}
-	else {
-		cout << "term error!" << endl;
+	while (token == MUL || token == DIV) {
+		t->children[count++] = mulop();
+
+		t->children[count++] = factor();
 	}
 
 	return t;
@@ -928,11 +856,13 @@ treeNode *mulop()
 	}
 	else {
 		cout << "mulop error!" << endl;
+		getToken();
 	}
 
 	return t;
 }
 
+// factor -> ( expression ) | ID factor-prime | NUM
 treeNode *factor()
 {
 	treeNode *t = new treeNode(EMPTY, "");
@@ -959,11 +889,13 @@ treeNode *factor()
 	}
 	else {
 		cout << "factor error!" << endl;
+		getToken();
 	}
 
 	return t;
 }
 
+// factor-prime -> [ [ expression ] ] | call
 treeNode *factor_prime() {
 	treeNode *t = new treeNode(EMPTY, "");
 	int count = 0;
@@ -987,27 +919,25 @@ treeNode *factor_prime() {
 	return t;
 }
 
+// call ->  ( args )
 treeNode *call()
 {
 	treeNode *t = new treeNode(EMPTY, "");
 	int count = 0;
 
-	if (token == LPAREN) {
-		t->children[count++] = new treeNode(token, tokenData);
-		match(LPAREN);
+	t->children[count++] = new treeNode(token, tokenData);
+	match(LPAREN);
 
-		t->children[count++] = args();
+	t->children[count++] = args();
 
-		t->children[count++] = new treeNode(token, tokenData);
-		match(RPAREN);
-	}
-	else {
-		cout << "call error!" << endl;
-	}
+	t->children[count++] = new treeNode(token, tokenData);
+	match(RPAREN);
+
 
 	return t;
 }
 
+// args -> arg-list | empty
 treeNode *args()
 {
 	treeNode *t = new treeNode(EMPTY, "");
@@ -1016,9 +946,6 @@ treeNode *args()
 	if (token == ID || token == NUM || token == LPAREN) {
 		t->children[count++] = arg_list();
 	}
-//	else if (token == RPAREN) {
-//		t->children[count++] = new treeNode(EMPTY, "");
-//	}
 	else {
 		cout << "args() error!" << endl;
 	}
@@ -1026,34 +953,24 @@ treeNode *args()
 	return t;
 }
 
+// arg-list -> expression {{ , expression }}
 treeNode *arg_list()
 {
 	treeNode *t = new treeNode(EMPTY, "");
 	int count = 0;
 
-	if (token == ID || token == NUM || token == LPAREN) {
-		t->children[count++] = expression();
-		
-		while (token == COMMA) {
-			t->children[count++] = new treeNode(token, tokenData);
-			match(COMMA);
+	t->children[count++] = expression();
 
-			t->children[count++] = expression();
-		}
+	while (token == COMMA) {
+		t->children[count++] = new treeNode(token, tokenData);
+		match(COMMA);
+
+		t->children[count++] = expression();
 	}
-	else {
-		cout << "arg_list error!" << endl;
-	}
+
 
 	return t;
 }
-
-/*
-treeNode *t = new treeNode(EMPTY, "");
-int count = 0;
-
-return t;
-*/
 
 
 void makeToken(ifstream &fp_in, ofstream &fp_out)
