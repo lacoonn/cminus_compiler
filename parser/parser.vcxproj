@@ -23,7 +23,7 @@
     <ProjectGuid>{B5E5BDF3-196F-41B8-9FD7-C06E035005B3}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>parser</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0.14393.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.15063.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -144,6 +144,9 @@
   <ItemGroup>
     <Text Include="parse.txt" />
     <Text Include="scan.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="parse.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

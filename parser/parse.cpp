@@ -1,83 +1,4 @@
-#include <iostream>
-#include <string>
-#include <fstream>
-#include <sstream>
-
-using namespace std;
-
-#define MAX_ARY 1000
-#define CHILD_MAX 20
-
-// dfa에서 나온 state들입니다.
-enum state { SID, SNUM, SYM, EQ, SYM2, WOW, COMMENT1, COMMENT2, COMMENT3, START, FIN, ERROR, IDNUM };
-enum TokenType { ID, NUM, INT, VOID, SEMI, LSQUARE, RSQUARE, LPAREN, RPAREN, COMMA, LBRACE, RBRACE, IF, ELSE, WHILE, RETURN, ASSIGN,
-	SEQUAL, BEQUAL, SMALLER, BIGGER, EQUAL, NEQUAL, PLUS, MINUS, MUL, DIV, EMPTY, EOS, ERR };
-
-class TreeNode
-{
-public:
-	TreeNode *sibling = NULL;
-	TreeNode *children[CHILD_MAX] = { NULL };
-	TokenType token;
-	string data;
-
-	TreeNode(TokenType _token, string _data)
-	{
-		token = _token;
-		data = _data;
-	}
-};
-
-typedef struct InputToken {
-	int LineNumber;
-	TokenType Token;
-	string TokenData;
-} InputToken;
-
-void makeToken(ifstream &fp_in, ofstream &fp_out);
-void parse(ifstream &fs_in, ofstream &fs_out);
-bool isLetter(char input);
-bool isDigit(char input);
-bool isWS(char input);
-bool isSymbol(char input);
-bool isReserved(string input);
-
-// 파서 관련 함수 선언
-static void deleteTree(TreeNode *);
-static void printTree(TreeNode *);
-static void makeTokenAry();
-static void getToken();
-static void match(TokenType expected);
-static TreeNode *program();
-static TreeNode *declaration_list();
-static TreeNode *declaration();
-static TreeNode *var_declaration();
-static TreeNode *type_specifier();
-static TreeNode *fun_declaration();
-static TreeNode *params();
-static TreeNode *param_list();
-static TreeNode *param();
-static TreeNode *compound_stmt();
-static TreeNode *local_declarations();
-static TreeNode *statement_list();
-static TreeNode *statement();
-static TreeNode *expression_stmt();
-static TreeNode *selection_stmt();
-static TreeNode *iteration_stmt();
-static TreeNode *return_stmt();
-static TreeNode *expression();
-static TreeNode *var();
-static TreeNode *simple_expression();
-static TreeNode *relop();
-static TreeNode *additive_expression();
-static TreeNode *addop();
-static TreeNode *term();
-static TreeNode *mulop();
-static TreeNode *factor();
-static TreeNode *factor_prime();
-static TreeNode *call();
-static TreeNode *args();
-static TreeNode *arg_list();
+#include "parse.h"
 
 // 전역 변수 선언
 static ifstream fs_in;
@@ -126,19 +47,40 @@ int main(int argc, char **argv)
 	return 0;
 }
 
-void printTree(TreeNode *root)
+void printTree(TreeNode *root, int tab)
 {
+	bool IndentFlag = false;
 	for (int i = 0; i < CHILD_MAX; i++) {
-		if (root->children[i] != NULL)
-			printTree(root->children[i]);
+		if (root->children[i] != NULL) {
+			/*
+			childtoken = root->children[i]->token;
+			if (childtoken == VOID || childtoken == INT || childtoken == WHILE || childtoken == IF || childtoken == WHILE) {
+				printTree(root->children[i], tab);
+				IndentFlag = true;
+			}
+			else {
+				if (IndentFlag)
+					printTree(root->children[i], tab + 1);
+				else
+					printTree(root->children[i], tab);
+			}
+			*/
+			if (root->isTab) {
+				printTree(root->children[i], tab + 1);
+			}
+			else {
+				printTree(root->children[i], tab);
+			}
+		}
 	}
 	if (root->token != EMPTY) {
-		cout << root->data;
-		fs_out << root->data;
-		if (root->data == ";" || root->data == "{" || root->data == "}")
-			cout << endl;
-		if (root->data == "int" || root->data == "void")
-			cout << " ";
+		for (int i = 0; i < tab; i++) {
+			cout << "\t";
+			fs_out << "\t";
+		}
+		cout << root->data << endl;
+		fs_out << root->data << endl;
+		//cout << "tab : " << tab << endl;
 	}
 }
 
@@ -293,7 +235,7 @@ void parse(ifstream &fs_in, ofstream &fs_out)
 	if (token != EOS)
 		cout << "Code ends before file" << endl;
 
-	printTree(t);
+	printTree(t, 0);
 	deleteTree(t);
 }
 
@@ -308,6 +250,7 @@ static TreeNode *program()
 
 	return t;
 }
+
 // declaration-list -> declaration {{ declaration }}
 static TreeNode *declaration_list()
 {
@@ -332,6 +275,7 @@ static TreeNode *declaration_list()
 
 	return t;
 }
+
 // declaration -> type-specifier ID var-declaration | func-declaration
 static TreeNode *declaration()
 {
@@ -341,7 +285,7 @@ static TreeNode *declaration()
 	if (token == VOID || token == INT) {
 		t->children[count++] = type_specifier();
 
-		t->children[count++] = new TreeNode(token, tokenData);
+		t->children[count++] = new TreeNode(token, tokenData, true);
 		match(ID);
 		
 		if (token == SEMI || token == LSQUARE) {
@@ -386,7 +330,7 @@ static TreeNode *var_declaration()
 	}
 	else {
 		cout << "var_declaration error! " << tokenLine << endl;
-		// 토큰 소비할까
+		getToken();
 	}
 
 	return t;
@@ -395,24 +339,25 @@ static TreeNode *var_declaration()
 // type-specifier -> int | void
 static TreeNode *type_specifier()
 {
-	TreeNode *t = new TreeNode(EMPTY, "");
+	TreeNode *t;
 	int count = 0;
 
 	if (token == VOID) {
-		t->children[count++] = new TreeNode(token, tokenData);
+		t = new TreeNode(token, tokenData);
 		match(VOID);
 	}
 	else if (token == INT) {
-		t->children[count++] = new TreeNode(token, tokenData);
+		t = new TreeNode(token, tokenData);
 		match(INT);
 	}
 	else {
 		cout << "type_specifier error!" << endl;
-		// 토큰 소비할까
+		getToken();
 	}
 
 	return t;
 }
+
 // fun-declaration -> ( params ) compound-stmt
 static TreeNode *fun_declaration()
 {
@@ -436,31 +381,7 @@ static TreeNode *fun_declaration()
 
 	return t;
 }
-
 /*
-TreeNode *params()
-{
-	TreeNode *t = new TreeNode(EMPTY, "");
-	int count = 0;
-
-	// 다음 토큰을 읽어서 거기에 따라 갈림(first가 같기때문에)
-	switch (lhd) {
-	case RPAREN:
-		t->children[count++] = new TreeNode(token, tokenData);
-		match(VOID);
-		break;
-	case ID:
-		t->children[count++] = param_list();
-		break;
-	default:
-		// exception
-		cout << "params error!" << endl;
-	}
-
-	return t;
-}
-*/
-
 TreeNode *params()
 {
 	TreeNode *t = new TreeNode(EMPTY, "");
@@ -518,7 +439,33 @@ TreeNode *params()
 
 	return t;
 }
+*/
 
+// params -> param-list | void
+TreeNode *params()
+{
+	TreeNode *t = new TreeNode(EMPTY, "");
+	int count = 0;
+
+	if (token == INT || token == VOID) {
+		if (lhd == ID) {
+			t->children[count++] = param_list();
+		}
+		else {
+			t->children[count++] = new TreeNode(token, tokenData);
+			match(VOID);
+		}
+	}
+	else {
+		if (lhd == RPAREN)
+			getToken();
+		cout << "params() ERROR!" << endl;
+	}
+
+	return t;
+}
+
+// param-list -> param {{ , param }}
 TreeNode *param_list()
 {
 	TreeNode *t = new TreeNode(EMPTY, "");
@@ -527,7 +474,7 @@ TreeNode *param_list()
 	if (token == VOID || token == INT) {
 		t->children[count++] = param();
 
-		// param_list의 [[ , [param] ]]
+		
 		while (token == COMMA) {
 			t->children[count++] = new TreeNode(token, tokenData);
 			match(COMMA);
@@ -600,7 +547,6 @@ TreeNode *local_declarations()
 
 	if (token == INT || token == VOID) {
 		while (token == INT || token == VOID) {
-			// type_specifier
 			t->children[count++] = type_specifier();
 
 			t->children[count++] = new TreeNode(token, tokenData);
