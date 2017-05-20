@@ -1,241 +1,164 @@
 int
-	x
-	[
-	10
-	]
-	;
+  ID: x
+  [
+  NUM: 10
+  ]
+  int
 int
-	minloc
-	(
-	int
-		a
-		[
-		]
-	,
-	int
-		low
-	,
-	int
-		high
-	)
-	{
-	int
-		i
-		;
-	int
-		x
-		;
-	int
-		k
-		;
-	k
-	=
-	low
-	;
-	x
-	=
-	a
-	[
-	low
-	]
-	;
-	i
-	=
-	low
-	+
-	1
-	;
-	while
-	(
-	i
-	<
-	high
-	)
-	{
-	if
-	(
-	a
-	[
-	i
-	]
-	<
-	x
-	)
-	{
-	x
-	=
-	a
-	[
-	i
-	]
-	;
-	k
-	=
-	i
-	;
-	}
-	i
-	=
-	i
-	+
-	1
-	;
-	}
-	return
-	k
-	;
-	}
+  ID: minloc
+  (
+    int
+      ID: a
+      [
+      ]
+    ,
+    int
+      ID: low
+    ,
+    int
+      ID: high
+  )
+  {
+    int
+      ID: i
+      ;
+    int
+      ID: x
+      ;
+    int
+      ID: k
+      ;
+    ID: k
+    ASSIGN: =
+      ID: low
+    ;
+    ID: x
+    ASSIGN: =
+      ID: a
+      [
+      ID: low
+      ;
+    ;
+    ID: i
+    ASSIGN: =
+      ID: low
+      OP: +
+      NUM: 1
+    ;
+    while
+    (
+        ID: i
+        COMPARE: <
+        ID: high
+    {
+          {
+            if
+            (
+                ID: a
+                [
+                ID: i
+                ]
+                COMPARE: <
+                ID: x
+            )
+              {
+                ID: x
+                ASSIGN: =
+                  ID: a
+                  [
+                  ID: i
+                  ]
+                ;
+                ID: k
+                ASSIGN: =
+                  ID: i
+                ;
+                ID: i
+                ASSIGN: =
+                  ID: i
+                  OP: +
+                  NUM: 1
+                ;
+              }
+            return
+            ID: k
+            ;
+          }
+  void
 void
-	sort
-	(
-	int
-		a
-		[
-		]
-	,
-	int
-		low
-	,
-	int
-		high
-	)
-	{
-	int
-		i
-		;
-	int
-		k
-		;
-	i
-	=
-	low
-	;
-	while
-	(
-	i
-	<
-	high
-	-
-	1
-	)
-	{
-	int
-		t
-		;
-	k
-	=
-	minloc
-	(
-	a
-	,
-	i
-	,
-	high
-	,
-	i
-	)
-	;
-	t
-	=
-	a
-	[
-	k
-	]
-	;
-	a
-	[
-	k
-	]
-	=
-	a
-	[
-	i
-	]
-	;
-	a
-	[
-	i
-	]
-	=
-	t
-	;
-	i
-	=
-	i
-	+
-	1
-	;
-	}
-	}
+  ID: sort
+int
+  ID: a
+  [
+  ]
+  ]
+  ,
+int
+  ID: low
+int
+  ID: high
+int
+  ID: i
+  ;
+int
+  ID: k
+  ;
+int
+  ID: t
+  ;
 void
-	main
-	(
-	void
-	)
-	{
-	int
-		i
-		;
-	i
-	=
-	0
-	;
-	while
-	(
-	i
-	<
-	10
-	)
-	{
-	x
-	[
-	i
-	]
-	=
-	input
-	(
-	)
-	;
-	i
-	=
-	i
-	+
-	1
-	;
-	}
-	sort
-	(
-	x
-	,
-	0
-	,
-	10
-	)
-	;
-	i
-	=
-	0
-	;
-	while
-	(
-	i
-	<
-	10
-	)
-	{
-	output
-	(
-	x
-	[
-	i
-	]
-	)
-	;
-	i
-	=
-	i
-	+
-	1
-	;
-	}
-	}
+  ID: main
+  (
+    void
+  )
+  {
+    int
+      ID: i
+      ;
+    ID: i
+    ASSIGN: =
+      NUM: 0
+    ;
+    while
+    (
+        ID: i
+        COMPARE: <
+        NUM: 10
+    )
+      {
+        ID: x
+        [
+        ID: i
+        ]
+        ASSIGN: =
+          ID: input
+          (
+          )
+        ;
+        ID: i
+        ASSIGN: =
+          ID: i
+          OP: +
+          NUM: 1
+        ;
+      }
+    ID: sort
+    (
+      ID: x
+      ,
+      NUM: 0
+      ,
+      NUM: 10
+    )
+    ;
+    ID: i
+    ASSIGN: =
+      NUM: 0
+    ;
+    while
+    (
+        ID: i
+        NUM: 10
+        NUM: 10
+        )
+  )

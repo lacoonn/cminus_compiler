@@ -6,7 +6,7 @@
 using namespace std;
 
 #define MAX_ARY 1000
-#define CHILD_MAX 20
+#define CHILD_MAX 100
 
 // dfa에서 나온 state들입니다.
 enum state { SID, SNUM, SYM, EQ, SYM2, WOW, COMMENT1, COMMENT2, COMMENT3, START, FIN, ERROR, IDNUM };
@@ -18,9 +18,9 @@ enum TokenType {
 class TreeNode
 {
 public:
-	TreeNode *children[CHILD_MAX] = { NULL };
-	TokenType token;
-	string data;
+	TreeNode *children[CHILD_MAX] = { NULL, };
+	TokenType token = EMPTY;
+	string data = "";
 	bool isTab = false;
 
 	TreeNode(TokenType _token, string _data)
@@ -45,7 +45,6 @@ typedef struct InputToken {
 
 //스캐너 관련 함수 선언
 void makeToken(ifstream &fp_in, ofstream &fp_out);
-void parse(ifstream &fs_in, ofstream &fs_out);
 bool isLetter(char input);
 bool isDigit(char input);
 bool isWS(char input);
@@ -53,6 +52,7 @@ bool isSymbol(char input);
 bool isReserved(string input);
 
 // 파서 관련 함수 선언
+static void parse();
 static void deleteTree(TreeNode *);
 static void printTree(TreeNode *, int);
 static void makeTokenAry();

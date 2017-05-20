@@ -41,46 +41,111 @@ int main(int argc, char **argv)
 	fs_out.open("parse.txt", ofstream::out);
 
 
-	parse(fs_in, fs_out);
+	parse();
 	
 
 	return 0;
 }
 
+void parse()
+{
+	TreeNode *t = new TreeNode(EMPTY, "");
+	int count = 0;
+
+	makeTokenAry();
+	// 토큰을 제대로 만들었는지 확인
+	for (int i = TokenIndex; i < TokenIndexMax; i++) {
+		cout << TokenAry[i].TokenData << endl;
+		if (TokenAry[i].Token == EOS)
+			cout << "\nEOS Index: " << i << endl;
+	}
+	getToken();
+
+	t->children[count++] = program();
+
+	cout << "program() END" << endl;
+
+	if (token != EOS)
+		cout << "Code ends before file" << endl;
+
+	printTree(t, 0);
+	deleteTree(t);
+}
+
 void printTree(TreeNode *root, int tab)
 {
-	bool IndentFlag = false;
+	int IndentCount = 0;
+	bool SpeFlag = false;
+
+	if (root == NULL)
+		return;
 	for (int i = 0; i < CHILD_MAX; i++) {
 		if (root->children[i] != NULL) {
-			/*
-			childtoken = root->children[i]->token;
-			if (childtoken == VOID || childtoken == INT || childtoken == WHILE || childtoken == IF || childtoken == WHILE) {
+			
+			TokenType childtoken = root->children[i]->token;
+			if (childtoken == WHILE || childtoken == IF || childtoken == WHILE || childtoken == LPAREN || childtoken == LBRACE) {
 				printTree(root->children[i], tab);
-				IndentFlag = true;
+				IndentCount++;
+			}
+			else if (childtoken == VOID || childtoken == INT || childtoken == ASSIGN) {
+				if (SpeFlag) {
+					printTree(root->children[i], tab);
+				}
+				else {
+					printTree(root->children[i], tab);
+					IndentCount++;
+					SpeFlag = true;
+				}
+			}
+			else if (childtoken == RPAREN || childtoken == RBRACE) {
+				printTree(root->children[i], tab);
+				IndentCount--;
 			}
 			else {
-				if (IndentFlag)
-					printTree(root->children[i], tab + 1);
-				else
-					printTree(root->children[i], tab);
+				printTree(root->children[i], tab + IndentCount);
 			}
-			*/
+			
+			/*
 			if (root->isTab) {
 				printTree(root->children[i], tab + 1);
 			}
 			else {
 				printTree(root->children[i], tab);
 			}
+			*/
 		}
 	}
 	if (root->token != EMPTY) {
 		for (int i = 0; i < tab; i++) {
-			cout << "\t";
-			fs_out << "\t";
+			cout << "  ";
+			fs_out << "  ";
+		}
+		if (root->token == ID) {
+			cout << "ID: ";
+			fs_out << "ID: ";
+		}
+		else if (root->token == NUM) {
+			cout << "NUM: ";
+			fs_out << "NUM: ";
+		}
+		else if (root->token == SEQUAL || root->token == BEQUAL || root->token == SMALLER || root->token == BIGGER || root->token == EQUAL || root->token == NEQUAL) {
+			cout << "COMPARE: ";
+			fs_out << "COMPARE: ";
+		}
+		else if (root->token == ASSIGN) {
+			cout << "ASSIGN: ";
+			fs_out << "ASSIGN: ";
+		}
+		else if (root->token == PLUS || root->token == MINUS) {
+			cout << "OP: ";
+			fs_out << "OP: ";
+		}
+		else if (root->token == DIV || root->token == MUL) {
+			cout << "OP: ";
+			fs_out << "OP: ";
 		}
 		cout << root->data << endl;
 		fs_out << root->data << endl;
-		//cout << "tab : " << tab << endl;
 	}
 }
 
@@ -90,6 +155,7 @@ void makeTokenAry()
 	int count = 0;
 
 	while (!fs_in.eof()) {
+		bool ErrorFlag = false;
 		int tempNum;
 		TokenType tempToken;
 		string tempString, tempData;
@@ -139,7 +205,7 @@ void makeTokenAry()
 			else if (tempData == "/")
 				tempToken = DIV;
 			else
-				cout << "ERROR : " << tempString << " : " << tempData << endl;
+				cout << "SYM ERROR : " << tempString << " : " << tempData << endl;
 		}
 		else if (tempString == "RESERVED") {
 			if (tempData == "int")
@@ -155,7 +221,7 @@ void makeTokenAry()
 			else if (tempData == "return")
 				tempToken = RETURN;
 			else
-				cout << "ERROR : " << tempString << " : " << tempData << endl;
+				cout << "RESERVED ERROR : " << tempString << " : " << tempData << endl;
 
 		}
 		else if (tempString == "ID") {
@@ -169,16 +235,21 @@ void makeTokenAry()
 		}
 		else if (tempString == "ERROR") {
 			tempToken = ERR;
+			ErrorFlag = true;
 		}
 		else {
-			cout << "ERROR : " << tempString << " : " << tempData << endl;
+			cout << "TOTAL ERROR >> Token: " << tempString << ", Data: " << tempData << endl;
+			ErrorFlag = true;
 		}
-		TokenAry[count].LineNumber = tempNum;
-		TokenAry[count].Token = tempToken;
-		TokenAry[count].TokenData = tempData;
-		count++;
+		if (!ErrorFlag) {
+			TokenAry[count].LineNumber = tempNum;
+			TokenAry[count].Token = tempToken;
+			TokenAry[count].TokenData = tempData;
+			count++;
+		}
 	}
 	TokenIndexMax = count;
+	cout << "Number of Tokens: " << TokenIndexMax << endl;
 }
 
 void getToken()
@@ -198,16 +269,17 @@ void getToken()
 void match(TokenType expected)
 {
 	if (token == expected) {
-		cout << tokenData;
 		getToken();
 	}
 	else {
-		cout << "\nmatch error!, expected : " << expected << ", line : " << tokenLine << ", token : " << token << ", tokenData : " << tokenData << endl;
+		cout << "\nMatch Error!, expected : " << expected << ", line : " << tokenLine << ", token : " << token << ", tokenData : " << tokenData << endl;
 	}
 }
 
 void deleteTree(TreeNode *root)
 {
+	if (root == NULL)
+		return;
 	for (int i = 0; i < CHILD_MAX; i++) {
 		if (root->children[i] != NULL)
 			deleteTree(root->children[i]);
@@ -216,37 +288,12 @@ void deleteTree(TreeNode *root)
 	delete root;
 }
 
-void parse(ifstream &fs_in, ofstream &fs_out)
-{
-	TreeNode *t = new TreeNode(EMPTY, "");
-	int count = 0;
-
-	makeTokenAry();
-	for (int i = TokenIndex; i < TokenIndexMax; i++) {
-		cout << TokenAry[i].TokenData;
-		if (TokenAry[i].Token == EOS)
-			cout << "EOS Index : " << i << endl;
-	}
-	cout << endl;
-	getToken();
-
-	t->children[count++] = program();
-
-	if (token != EOS)
-		cout << "Code ends before file" << endl;
-
-	printTree(t, 0);
-	deleteTree(t);
-}
-
 static TreeNode *program()
 {
 	TreeNode *t = new TreeNode(EMPTY, "");
 	int count = 0;
 
 	t->children[count++] = declaration_list();
-	
-	cout << "program() END" << endl;
 
 	return t;
 }
@@ -256,55 +303,45 @@ static TreeNode *declaration_list()
 {
 	TreeNode *t = new TreeNode(EMPTY, "");
 	int count = 0;
-	
-	if (token == VOID || token == INT) {
-		t->children[count++] = declaration();
-		
-		while (token != EOS) {
-			TreeNode *temp = declaration();
-			t->children[count++] = temp;
+
+
+	t->children[count++] = declaration();
+
+	while (token != EOS) {
+		if (token == INT || token == VOID) {
+			t->children[count++] = declaration();
 		}
-	}
-	else {
-		cout << "declaration_list ERROR!" << endl;
-		cout << "Line : " << TokenAry[TokenIndex - 1].LineNumber << endl;
-		cout << "Token : " << token << endl;
-		cout << "Data : " << tokenData << endl;
-		cout << "Index Number : " << TokenIndex << endl;
+		else {
+			cout << "declaration Error Count: " << count << endl;
+			getToken();
+		}
 	}
 
 	return t;
 }
 
-// declaration -> type-specifier ID var-declaration | func-declaration
+// declaration -> type-specifier ID [[ var-declaration | func-declaration ]]
 static TreeNode *declaration()
 {
 	TreeNode *t = new TreeNode(EMPTY, "");
 	int count = 0;
 
-	if (token == VOID || token == INT) {
-		t->children[count++] = type_specifier();
 
-		t->children[count++] = new TreeNode(token, tokenData, true);
-		match(ID);
-		
-		if (token == SEMI || token == LSQUARE) {
-			t->children[count++] = var_declaration();
-		}
-		else if (token == LPAREN) {
-			t->children[count++] = fun_declaration();
-		}
-		else {
-			cout << "delcaration(inner) error!" << endl;
-		}
+	t->children[count++] = type_specifier();
+
+	t->children[count++] = new TreeNode(token, tokenData, true);
+	match(ID);
+
+	if (token == SEMI || token == LSQUARE) {
+		t->children[count++] = var_declaration();
 	}
-	else {
-		cout << "declaration error![" << tokenData << "]"<< endl;
-		cout << "index number : " << TokenIndex << endl;
+	else if (token == LPAREN) {
+		t->children[count++] = fun_declaration();
 	}
 
 	return t;
 }
+
 // var-declaration -> ; | [ NUM ] ;
 static TreeNode *var_declaration()
 {
@@ -352,7 +389,7 @@ static TreeNode *type_specifier()
 	}
 	else {
 		cout << "type_specifier error!" << endl;
-		getToken();
+		//getToken();
 	}
 
 	return t;
@@ -864,31 +901,31 @@ TreeNode *simple_expression()
 
 TreeNode *relop()
 {
-	TreeNode *t = new TreeNode(EMPTY, "");
+	TreeNode *t;
 	int count = 0;
 	
 	if (token == SEQUAL) {
-		t->children[count++] = new TreeNode(token, tokenData);
+		t = new TreeNode(token, tokenData);
 		match(SEQUAL);
 	}
 	else if (token == BIGGER) {
-		t->children[count++] = new TreeNode(token, tokenData);
+		t = new TreeNode(token, tokenData);
 		match(BIGGER);
 	}
 	else if (token == SMALLER) {
-		t->children[count++] = new TreeNode(token, tokenData);
+		t = new TreeNode(token, tokenData);
 		match(SMALLER);
 	}
 	else if (token == BEQUAL) {
-		t->children[count++] = new TreeNode(token, tokenData);
+		t = new TreeNode(token, tokenData);
 		match(BEQUAL);
 	}
 	else if (token == EQUAL) {
-		t->children[count++] = new TreeNode(token, tokenData);
+		t = new TreeNode(token, tokenData);
 		match(EQUAL);
 	}
 	else if (token == NEQUAL) {
-		t->children[count++] = new TreeNode(token, tokenData);
+		t = new TreeNode(token, tokenData);
 		match(NEQUAL);
 	}
 	else {
@@ -921,15 +958,15 @@ TreeNode *additive_expression()
 
 TreeNode *addop()
 {
-	TreeNode *t = new TreeNode(EMPTY, "");
+	TreeNode *t;
 	int count = 0;
 
 	if (token == PLUS) {
-		t->children[count++] = new TreeNode(token, tokenData);
+		t = new TreeNode(token, tokenData);
 		match(PLUS);
 	}
 	else if (token == MINUS) {
-		t->children[count++] = new TreeNode(token, tokenData);
+		t = new TreeNode(token, tokenData);
 		match(MINUS);
 	}
 	else {
@@ -966,11 +1003,11 @@ TreeNode *mulop()
 	int count = 0;
 
 	if (token == MUL) {
-		t->children[count++] = new TreeNode(token, tokenData);
+		t = new TreeNode(token, tokenData);
 		match(MUL);
 	}
 	else if (token == DIV) {
-		t->children[count++] = new TreeNode(token, tokenData);
+		t = new TreeNode(token, tokenData);
 		match(DIV);
 	}
 	else {
@@ -1061,9 +1098,10 @@ TreeNode *args()
 	if (token == ID || token == NUM || token == LPAREN) {
 		t->children[count++] = arg_list();
 	}
-//	else if (token == RPAREN) {
-//		t->children[count++] = new TreeNode(EMPTY, "");
-//	}
+	else if (token == RPAREN) {
+		//t->children[count++] = new TreeNode(EMPTY, "");
+		//EMPTY
+	}
 	else {
 		cout << "args() error!" << endl;
 	}
@@ -1267,7 +1305,7 @@ void makeToken(ifstream &fp_in, ofstream &fp_out)
 	fp_out << line_num++ << '\t' << "EOF\n";
 	// 주석 상태에서 종료되면 에러메시지를 출력합니다.
 	if (now_state == COMMENT2 || now_state == COMMENT3) {
-		fp_out << "Error: stop before ending";
+		//fp_out << "Error: stop before ending";
 	}
 }
 
