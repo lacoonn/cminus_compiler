@@ -3,6 +3,7 @@
 4	SYM		[
 4	NUM		10
 4	SYM		]
+4	SYM		;
 6	RESERVED	int
 6	ID		minloc
 6	SYM		(
@@ -36,6 +37,7 @@
 9	ID		a
 9	SYM		[
 9	ID		low
+9	SYM		]
 9	SYM		;
 10	ID		i
 10	SYM		=
@@ -48,6 +50,7 @@
 11	ID		i
 11	SYM		<
 11	ID		high
+11	SYM		)
 12	SYM		{
 12	RESERVED	if
 12	SYM		(
@@ -70,6 +73,7 @@
 14	SYM		=
 14	ID		i
 14	SYM		;
+14	SYM		}
 15	ID		i
 15	SYM		=
 15	ID		i
@@ -83,6 +87,7 @@
 18	SYM		}
 20	RESERVED	void
 20	ID		sort
+20	SYM		(
 20	RESERVED	int
 20	ID		a
 20	SYM		[
@@ -214,6 +219,7 @@
 42	RESERVED	while
 42	SYM		(
 42	ID		i
+42	SYM		<
 42	NUM		10
 42	SYM		)
 43	SYM		{
@@ -222,6 +228,7 @@
 43	ID		x
 43	SYM		[
 43	ID		i
+43	SYM		]
 43	SYM		)
 43	SYM		;
 44	ID		i

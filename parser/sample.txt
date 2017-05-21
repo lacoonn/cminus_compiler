@@ -1,0 +1,23 @@
+/* This is a sample program for
+parser project*/
+int arr[20];
+int make(int p, int q)
+{
+if(p<q)
+return (p+q);
+else
+return p*q;
+}
+void main(void)
+{
+int range; int i;int a;int b;
+range=20;
+i=0;
+while(i != range)
+{
+a=input();
+b=input();
+arr[i]=make(a, b);
+i=i+1;
+}
+}

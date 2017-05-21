@@ -1,9 +1,6 @@
 int
   ID: x
-  [
   NUM: 10
-  ]
-  int
 int
   ID: minloc
   (
@@ -11,154 +8,159 @@ int
       ID: a
       [
       ]
-    ,
     int
       ID: low
-    ,
     int
       ID: high
-  )
-  {
-    int
-      ID: i
-      ;
-    int
-      ID: x
-      ;
-    int
-      ID: k
-      ;
-    ID: k
-    ASSIGN: =
-      ID: low
-    ;
-    ID: x
-    ASSIGN: =
-      ID: a
-      [
-      ID: low
-      ;
-    ;
-    ID: i
-    ASSIGN: =
-      ID: low
-      OP: +
-      NUM: 1
-    ;
-    while
-    (
-        ID: i
-        COMPARE: <
-        ID: high
+    )
     {
-          {
-            if
-            (
+      int
+        ID: i
+      int
+        ID: x
+      int
+        ID: k
+      ASSIGN: =
+        ID: k
+        ID: low
+      ASSIGN: =
+        ID: x
+        ID: a
+          ID: low
+      ASSIGN: =
+        ID: i
+        OP: +
+          ID: low
+          NUM: 1
+      while
+        COMPARE: <
+          ID: i
+          ID: high
+        {
+          if
+            COMPARE: <
+              ID: a
+                ID: i
+              ID: x
+            {
+              ASSIGN: =
+                ID: x
                 ID: a
-                [
-                ID: i
-                ]
-                COMPARE: <
-                ID: x
-            )
-              {
-                ID: x
-                ASSIGN: =
-                  ID: a
-                  [
                   ID: i
-                  ]
-                ;
+              ASSIGN: =
                 ID: k
-                ASSIGN: =
-                  ID: i
-                ;
                 ID: i
-                ASSIGN: =
-                  ID: i
-                  OP: +
-                  NUM: 1
-                ;
               }
-            return
-            ID: k
-            ;
+          ASSIGN: =
+            ID: i
+            OP: +
+              ID: i
+              NUM: 1
           }
-  void
+      return
+        ID: k
+      }
 void
   ID: sort
-int
-  ID: a
-  [
-  ]
-  ]
-  ,
-int
-  ID: low
-int
-  ID: high
-int
-  ID: i
-  ;
-int
-  ID: k
-  ;
-int
-  ID: t
-  ;
+  (
+    int
+      ID: a
+      [
+      ]
+    int
+      ID: low
+    int
+      ID: high
+    )
+    {
+      int
+        ID: i
+      int
+        ID: k
+      ASSIGN: =
+        ID: i
+        ID: low
+      while
+        COMPARE: <
+          ID: i
+          OP: -
+            ID: high
+            NUM: 1
+        {
+          int
+            ID: t
+          ASSIGN: =
+            ID: k
+            ID: minloc
+              ID: a
+              ID: i
+              ID: high
+              ID: i
+          ASSIGN: =
+            ID: t
+            ID: a
+              ID: k
+          ASSIGN: =
+            ID: a
+              ID: k
+            ID: a
+              ID: i
+          ASSIGN: =
+            ID: a
+              ID: i
+            ID: t
+          ASSIGN: =
+            ID: i
+            OP: +
+              ID: i
+              NUM: 1
+          }
+      }
 void
   ID: main
   (
     void
-  )
-  {
-    int
-      ID: i
-      ;
-    ID: i
-    ASSIGN: =
-      NUM: 0
-    ;
-    while
-    (
+    )
+    {
+      int
         ID: i
+      ASSIGN: =
+        ID: i
+        NUM: 0
+      while
         COMPARE: <
-        NUM: 10
-    )
-      {
-        ID: x
-        [
-        ID: i
-        ]
-        ASSIGN: =
-          ID: input
-          (
-          )
-        ;
-        ID: i
-        ASSIGN: =
           ID: i
-          OP: +
-          NUM: 1
-        ;
-      }
-    ID: sort
-    (
-      ID: x
-      ,
-      NUM: 0
-      ,
-      NUM: 10
-    )
-    ;
-    ID: i
-    ASSIGN: =
-      NUM: 0
-    ;
-    while
-    (
+          NUM: 10
+        {
+          ASSIGN: =
+            ID: x
+              ID: i
+            ID: input
+          ASSIGN: =
+            ID: i
+            OP: +
+              ID: i
+              NUM: 1
+          }
+      ID: sort
+        ID: x
+        NUM: 0
+        NUM: 10
+      ASSIGN: =
         ID: i
-        NUM: 10
-        NUM: 10
-        )
-  )
+        NUM: 0
+      while
+        COMPARE: <
+          ID: i
+          NUM: 10
+        {
+          ID: output
+            ID: x
+              ID: i
+          ASSIGN: =
+            ID: i
+            OP: +
+              ID: i
+              NUM: 1
+          }
+      }

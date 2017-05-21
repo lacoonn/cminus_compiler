@@ -15,33 +15,29 @@ enum TokenType {
 	SEQUAL, BEQUAL, SMALLER, BIGGER, EQUAL, NEQUAL, PLUS, MINUS, MUL, DIV, EMPTY, EOS, ERR
 };
 
+typedef struct InputToken {
+	int lineno;
+	TokenType tokentype;
+	string TokenData;
+} InputToken;
+
 class TreeNode
 {
 public:
-	TreeNode *children[CHILD_MAX] = { NULL, };
-	TokenType token = EMPTY;
-	string data = "";
-	bool isTab = false;
+	InputToken token;
+	struct TreeNode* child[CHILD_MAX];
+	struct TreeNode* sibling;
+	bool visit;
 
-	TreeNode(TokenType _token, string _data)
+	TreeNode(InputToken currentToken)
 	{
-		token = _token;
-		data = _data;
-		isTab = false;
-	}
-	TreeNode(TokenType _token, string _data, bool _isTab)
-	{
-		token = _token;
-		data = _data;
-		isTab = _isTab;
+		token = currentToken;
+		for (int i = 0; i<CHILD_MAX; i++)
+			child[i] = NULL;
+		sibling = NULL;
+		visit = false;
 	}
 };
-
-typedef struct InputToken {
-	int LineNumber;
-	TokenType Token;
-	string TokenData;
-} InputToken;
 
 //스캐너 관련 함수 선언
 void makeToken(ifstream &fp_in, ofstream &fp_out);
@@ -57,15 +53,18 @@ static void deleteTree(TreeNode *);
 static void printTree(TreeNode *, int);
 static void makeTokenAry();
 static void getToken();
-static void match(TokenType expected);
+static void printToken(InputToken);
+static void syntaxError(char* message);
+static TreeNode *match(TokenType expected);
 static TreeNode *program();
 static TreeNode *declaration_list();
 static TreeNode *declaration();
+static TreeNode* declaration_prime(void);
 static TreeNode *var_declaration();
 static TreeNode *type_specifier();
 static TreeNode *fun_declaration();
 static TreeNode *params();
-static TreeNode *param_list();
+static TreeNode *params_prime(void);
 static TreeNode *param();
 static TreeNode *compound_stmt();
 static TreeNode *local_declarations();
@@ -75,6 +74,7 @@ static TreeNode *expression_stmt();
 static TreeNode *selection_stmt();
 static TreeNode *iteration_stmt();
 static TreeNode *return_stmt();
+static TreeNode *return_stmt_prime(void);
 static TreeNode *expression();
 static TreeNode *var();
 static TreeNode *simple_expression();
@@ -85,6 +85,5 @@ static TreeNode *term();
 static TreeNode *mulop();
 static TreeNode *factor();
 static TreeNode *factor_prime();
-static TreeNode *call();
 static TreeNode *args();
 static TreeNode *arg_list();
