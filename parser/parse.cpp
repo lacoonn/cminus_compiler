@@ -14,13 +14,14 @@ static int TokenIndexMax = 0;
 
 int main(int argc, char **argv)
 {
-	string input_file_name;
-	cin >> input_file_name;
+	//string input_file_name;
+	//cin >> input_file_name;
 
 
 	// getToken 함수로 파일스트림을 넘겨주면 getToken 함수가 파일스트림에서
 	// 텍스트를 읽어 토큰으로 분해 후 출력합니다.
-	fp_in.open(input_file_name, ifstream::in);
+	//fp_in.open(input_file_name, ifstream::in);
+	fp_in.open(argv[1], ifstream::in);
 	fp_out.open("scan.txt", ofstream::out);
 	
 	makeToken(fp_in, fp_out);
@@ -33,7 +34,8 @@ int main(int argc, char **argv)
 
 	// 파서 부분
 	fs_in.open("scan.txt", ifstream::in);
-	fs_out.open("parse.txt", ofstream::out);
+	//fs_out.open("parse.txt", ofstream::out);
+	fs_out.open(argv[2], ofstream::out);
 
 	parse();
 	
@@ -1220,7 +1222,7 @@ void makeToken(ifstream &fp_in, ofstream &fp_out)
 				else if (prev_state == SYM || prev_state == EQ || prev_state == SYM2 || prev_state == COMMENT1) // symbol일 경우 출력양식입니다.
 					temp_string << line_num << '\t' << "SYM\t\t" << temp_buf << '\n';
 				else if (prev_state == ERROR || prev_state == IDNUM || prev_state == WOW) // 에러로 처리되는 상태일 경우 출력양식입니다.
-					temp_string << line_num << '\t' << "Error\t\t" << temp_buf << '\n';
+					temp_string << line_num << '\t' << "ERROR\t\t" << temp_buf << '\n';
 				words_buf.append(temp_string.str()); // 만들어진 토큰(출력양식)을 버퍼에 추가합니다.
 													 // 사용했던 임시 버퍼를 비웁니다.
 				temp_buf = "";
